@@ -1,0 +1,18 @@
+date,book,chapter_slug,word_count,sources_count,verify_flag_count,pantry_notes_found,pantry_lib_files_used,thin_pantry,mechanism_explained,contested_claims_flagged
+2026-05-23,java-in-the-age-of-ai,01-introduction,811,0,0,no,5,no,"Roadmap explains programming as conducting and the module progression.",0
+2026-05-23,java-in-the-age-of-ai,02-welcome-and-course-orientation,1248,13,1,yes,5,no,"The chapter turns AI use from hidden assistance into inspectable process evidence.",0
+2026-05-23,java-in-the-age-of-ai,03-the-conductors-frame,1267,13,1,yes,5,no,"The chapter makes the solve/verify asymmetry operational through problem formulation and binary handoff conditions.",0
+2026-05-23,java-in-the-age-of-ai,04-java-foundations-for-specification,1224,13,1,yes,5,no,"The chapter uses Java signatures and invariants as the first concrete language of specification.",0
+2026-05-23,java-in-the-age-of-ai,05-objects-as-specifications,1171,13,1,yes,5,no,"The chapter deep-dives how object boundaries enforce invariants across an object's lifecycle.",0
+2026-05-23,java-in-the-age-of-ai,06-the-software-design-document,1190,13,1,yes,5,no,"The chapter makes system-scale specification visible through problem summaries and dependency-ordered handoffs.",0
+2026-05-23,java-in-the-age-of-ai,07-inheritance-and-the-specification-contract,1168,13,1,yes,5,no,"The chapter uses LSP audits to turn inheritance from taxonomy into behavioral verification.",0
+2026-05-23,java-in-the-age-of-ai,08-gui-as-user-need-specification,1165,13,1,yes,5,no,"The chapter translates user needs into JavaFX controls, event sources, and handler contracts.",0
+2026-05-23,java-in-the-age-of-ai,09-midpoint-integration-boondoggle-score-part-i,1143,13,1,yes,5,no,"The chapter forces local specifications to survive system-level integration and peer challenge.",0
+2026-05-23,java-in-the-age-of-ai,10-abstract-contracts-and-interface-specifications,1176,13,1,yes,5,no,"The chapter separates signature compatibility from behavioral interchangeability.",0
+2026-05-23,java-in-the-age-of-ai,11-event-driven-specification,1159,13,1,yes,5,no,"The chapter turns event handlers into auditable state transitions with guards and no-op cases.",0
+2026-05-23,java-in-the-age-of-ai,12-generics-collections-and-type-safe-specification,1166,13,1,yes,5,no,"The chapter connects Java type safety and collection choice to explicit access-pattern requirements.",0
+2026-05-23,java-in-the-age-of-ai,13-recursion-as-problem-decomposition,1169,13,1,yes,5,no,"The chapter teaches recursive methods as auditable decomposition contracts with termination evidence.",0
+2026-05-23,java-in-the-age-of-ai,14-data-structures-as-architectural-decisions,1157,13,1,yes,5,no,"The chapter elevates collection and storage choices into explicit architecture decisions tied to invariants and load.",0
+2026-05-23,java-in-the-age-of-ai,15-hardening-edge-cases-and-failure-states,1174,13,1,yes,5,no,"The chapter teaches failure-state enumeration, risk triage, and prompt revision without scope expansion.",0
+2026-05-23,java-in-the-age-of-ai,16-final-boondoggle-score-defense,1179,13,1,yes,5,no,"The chapter integrates the whole course into architectural decision defense and cascade-risk accountability.",0
+2026-05-23,java-in-the-age-of-ai,97-fundamental-themes,377,0,0,no,5,no,"Appendix consolidates the course's recurring supervisory themes.",0

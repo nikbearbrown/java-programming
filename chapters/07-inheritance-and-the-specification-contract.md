@@ -1,113 +1,178 @@
-# Module 5: Inheritance and the Specification Contract
-
-**One-line:** Students learn to specify superclass/subclass relationships as behavioral contracts — and audit AI-generated hierarchies for the single most common OOP failure.
-
-## Learning Objectives
-
-- M5-LO1 [PF] (Apply) Specify a superclass/subclass relationship: invariant each class enforces, the one invariant no subclass may violate.
-- M5-LO2 [PA] (Analyze) Given AI-generated inheritance hierarchies, identify LSP violations and diagnose specification failure vs. generation failure.
-- M5-LO3 [IJ] (Evaluate) Decide between inheritance and composition and defend the choice using the specific failure mode each introduces.
-
-## Opening Case
-
-Square extends Rectangle. The code compiles. The setter methods inherit cleanly. Then a method that expects to widen a rectangle changes only width, and the square silently changes height too. The subclass has the right shape vocabulary and the wrong behavior.
-
-The mistake is tempting because the code looks like progress. That is the recurring trap in this course. AI can produce an artifact faster than the learner can fully explain the artifact's obligations. The course therefore asks the learner to slow down at the handoff, not at the keyboard.
-
-## Core Concept
-
-Inheritance is a promise that a subclass can stand where the superclass is expected. The famous Liskov Substitution Principle is not a slogan about elegance. It is a behavioral audit: if code that works with the parent breaks when handed the child, the hierarchy is lying.
-
-A superclass contract states the invariants and method behaviors every subclass must preserve. A subclass may add behavior, but it must not violate the expectations clients are allowed to have about the superclass.
-
-This is where the AI-era Java course differs from a coverage-first Java course. The chapter still teaches real Java. It just teaches Java as a language for constraining and auditing delegated work. Dilnoza does not need to become faster than AI at producing boilerplate. She needs to become precise enough that the boilerplate can be judged.
-
-![Dependency and verification flow for Inheritance and the](images/07-inheritance-and-the-specification-contract-fig-01.png)
-*Figure 7.1 — Dependency and verification flow for Inheritance and the*
-
-## Worked Example
-
-**Situation.** A `Notification` superclass promises `send()` records exactly one delivery attempt and returns a delivery result. An AI-generated `EmailNotification` retries internally and records three attempts before returning. That might be useful, but it violates the superclass contract unless retries were part of the shared behavior. The conductor must decide: revise the superclass contract, override with explicit constraints, or use composition instead.
-
-**Analytical process.** The conductor does four things before accepting the output:
-
-1. Names the intended behavior in a sentence short enough to be falsified.
-2. Identifies the Java element that carries the promise: class, method, interface, event handler, data structure, or graph edge.
-3. Writes a handoff condition that can pass or fail.
-4. Records the human audit task in the Boondoggle Score before moving downstream.
-
-| Item | Meaning |
-| --- | --- |
-| Inheritance and the Specification Contract Boondoggle Score excerpt with columns for AI task, human supervisory capacity, handoff condition, evidence, and downstream dependency. | A concrete checkpoint for applying the chapter concept. |
-
-**Dead end.** The common dead end is accepting the first artifact that appears coherent. Coherence is not compliance. The learner must point to the exact clause or invariant the artifact satisfies.
-
-**Resolution.** The output is accepted only after the handoff condition passes. If the condition fails, the student does not patch silently. She revises the prompt, records the failure, and explains whether the failure came from the prompt, the model output, or the human's missing constraint.
-
-**The lesson:** generated Java is a candidate answer, not evidence of completion.
-
-**The limit:** this method cannot prove every property of a system; it makes the most important obligations explicit enough to audit.
-
-## Boondoggle Score Checkpoint
-
-For this module, add one score segment with these fields:
-
-- **AI task:** the work the model is allowed to perform for inheritance and the specification contract.
-- **Human task:** the decision or audit the learner must perform personally.
-- **Handoff condition:** one binary rule that must pass before the next dependency begins.
-- **Evidence:** the exact code, prompt clause, diagram edge, or revision note that proves the handoff passed.
-- **Supervisory capacity:** one of Problem Formulation, Tool Orchestration, Plausibility Auditing, Interpretive Judgment, or Executive Integration.
-
-The checkpoint is intentionally small. The course is building a habit: every delegation has an acceptance condition, and every acceptance condition has evidence.
-
-## Common Misconceptions
-
-**Inheritance means 'is a' in ordinary language.** Ordinary language is not enough. The subtype must preserve behavior under substitution.
-
-**Composition is always safer.** Composition avoids some inheritance failures but can make polymorphic use harder. The choice needs a named failure mode.
-
-**AI chose a hierarchy, so the design is done.** Hierarchy is an architectural claim. The human must defend it.
-
-## Exercises
-
-1. **Apply:** Write a prompt for a Java artifact in this module's domain. Include output format, constraints, and at least two things AI must not do.
-2. **Analyze:** Given an AI-generated answer, mark the first line or design choice that violates the specification. Explain whether the problem is prompt omission, model failure, or human acceptance failure.
-3. **Create:** Add one Boondoggle Score row for your own course project. The row must include AI task, human task, handoff condition, and evidence.
-4. **Evaluate:** Name one alternative design or prompt choice and defend why you rejected it. Your defense must name the failure mode the alternative would introduce.
-
-## What Would Change My Mind
-
-I would revise this chapter's central claim if controlled classroom evidence showed that students who accepted AI-generated Java with only code-output grading developed equal or better ability to identify specification violations, defend architectural decisions, and catch hidden failure states than students who maintained Boondoggle Scores. The relevant evidence would need to test transfer to unfamiliar systems, not just performance on the same assignment type.
-
-## Still Puzzling
-
-- How much Java syntax should be retrieved from memory before AI assistance becomes educationally harmful rather than helpful?
-- Which handoff conditions are best checked by inspection, and which require execution, tests, or peer review?
-- How should the course calibrate students who arrive with strong Java experience but weak specification discipline?
-- What evidence from the first course run should be added to replace illustrative cases with documented local cases?
-
-## Sources and Drafting Notes
-
-Sources to carry into drafting: Peng et al., 2023; Vaithilingam et al., 2022; Pearce et al., 2022; Gosling et al., Java Language Specification, Java SE 21, 2023; Oracle Java SE API, 2023; Collins, Brown, and Newman, 1989; Sweller, 1988; Robins, Rountree, and Rountree, 2003; Chi and Wylie, 2014; Parnas, 1972; Meyer, 1997; Fagan, 1976; Bass, Clements, and Kazman, 2021.
-
-Claims about specific AI-tool performance, wage premiums, or current platform behavior should be verified near publication. The TIKTOC's 56% wage-premium claim is motivational but still needs original-source confirmation before final release. [verify]
+# Chapter 7 — Inheritance and the Specification Contract
+*A subclass that lies about what it is will eventually be caught — usually at the worst possible moment.*
 
 ---
 
-## Prompts
+Here is a puzzle that feels like it should be trivial.
 
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
+A square is a rectangle. Every square you have ever seen satisfies every geometric property of a rectangle — four right angles, opposite sides equal and parallel. If you were writing a classification system for shapes and someone asked "is a square a rectangle?", you would say yes without hesitation.
 
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
+Now write the Java. Make `Square` extend `Rectangle`. Give `Rectangle` methods `setWidth` and `setHeight`. Notice that when you call `setWidth` on a square, the height must change too — a square with unequal sides is no longer a square. So you override `setWidth` in `Square` to set both dimensions simultaneously.
+
+The code compiles. The code runs. A square is, geometrically speaking, a rectangle. And yet you have just created a hierarchy that will fail.
+
+Here is the failure. Write a method somewhere in your system that accepts a `Rectangle` and widens it:
+
+```java
+void widen(Rectangle r) {
+    int h = r.getHeight();
+    r.setWidth(h * 2);
+    assert r.getHeight() == h; // height should not have changed
+}
+```
+
+That assertion is reasonable. If you hand this method a `Rectangle`, the height stays fixed when you change the width. But if you hand it a `Square` — which your type system says is perfectly legal, because `Square extends Rectangle` — the assertion fails. The height changed. The method did not ask for it to change. The subclass behaved differently from what the superclass promised.
+
+This is not a compiler error. It is not a runtime crash (unless you have assertions enabled). It is a silent behavioral violation. The code looks correct. The types check out. The contract is broken anyway.
+
+<!-- → [IMAGE: Annotated code snippet of the widen() method with two side-by-side execution traces — left trace: Rectangle passed in, getHeight() returns h, setWidth() runs, assertion passes; right trace: Square passed in, setWidth() silently changes height, assertion fails; callout arrows highlight the exact line where behavioral divergence occurs] -->
+
+That is the trap. And I want to spend this chapter explaining exactly why it is a trap, because it is the same trap that appears every time you accept an AI-generated inheritance hierarchy without auditing the behavioral promises the hierarchy makes.
 
 ---
 
-### Figure 7.1 — Dependency and verification flow for Inheritance and the
+## What Inheritance Actually Promises
 
-Create a standalone D3 v7 HTML file for Figure Dependency and verification flow for Inheritance and the. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Dependency and verification flow for Inheritance and the Specification Contract, showing the learner's specification, AI generation, human audit, handoff condition, and next component.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+Most introductory treatments of inheritance emphasize structure. A subclass gets the fields and methods of its superclass. It can add new ones. It can override existing ones. This is all true, and it is all incomplete.
 
-> Reference implementation: `d3/07-inheritance-and-the-specification-contract-fig-01.html`
+Inheritance is not primarily a structural relationship. It is a behavioral promise. When you write `Square extends Rectangle`, you are not just saying that squares and rectangles share some code. You are saying: *wherever a Rectangle is expected, a Square may be used, and the behavior will be the same.*
+
+That is the Liskov Substitution Principle, stated by Barbara Liskov in 1987 and formalized with Jeannette Wing in 1994. I want to be careful not to present it as a slogan — "subtypes must be substitutable for their base types" — because slogans invite nodding agreement without understanding. Let me state it operationally instead.
+
+If you have a piece of code that works correctly with objects of type `T`, and you substitute an object of type `S` where `S` claims to be a subtype of `T`, the code must continue to work correctly. Not approximately correctly. Not mostly correctly. Correctly. If it doesn't, the hierarchy is lying about its relationship.
+
+The square-rectangle hierarchy fails this test because `widen` works correctly on rectangles and fails on squares — even though squares claim to be rectangles. The claim is geometrically accurate and behaviorally false.
+
+<!-- → [INFOGRAPHIC: Square-Rectangle LSP failure — three-panel sequence: (1) Rectangle hierarchy claimed, (2) widen() method with height-preservation invariant, (3) Square substituted, assertion fails; visual shows the gap between the structural claim and the behavioral violation] -->
+
+This distinction — between the structural claim and the behavioral contract — is exactly what you need to audit when AI generates an inheritance hierarchy. The AI knows how to write Java. It will produce syntactically correct, structurally coherent code. What it cannot guarantee, without an explicit specification from you, is that the behavioral contracts hold across the hierarchy.
+
+---
+
+## The Superclass Contract
+
+The concept I want to introduce here is the *superclass contract*. A superclass contract is a statement of what every subclass is obligated to preserve. Not just the method signatures — those are enforced by the compiler. The behavioral obligations: what invariants hold before and after each method, what clients are permitted to assume, what the subclass may never change even when overriding.
+
+Let me build this carefully using the `Notification` example.
+
+Suppose you are building a notification system. You write a superclass:
+
+```java
+public abstract class Notification {
+    public abstract DeliveryResult send(String recipient, String message);
+}
+```
+
+What does `send` promise? At minimum, it probably promises something like this: calling `send` with a valid recipient and message produces a `DeliveryResult` describing what happened, and records exactly one delivery attempt in the system log.
+
+Now AI generates an `EmailNotification` subclass. The generated implementation retries internally — it attempts delivery three times before returning, recording an attempt each time. The returned `DeliveryResult` is accurate: it reflects success or final failure. The method signature is correct. The code compiles.
+
+And yet this may violate the superclass contract. If clients of `Notification` assume that calling `send` once records one attempt — which is a reasonable assumption, and possibly the assumption that drives the billing system downstream — then `EmailNotification` has broken something the client was allowed to depend on.
+
+Was that in your specification? If you did not write down "records exactly one delivery attempt," AI had no obligation to preserve it. The AI did something reasonable. It retried, because retrying is sensible behavior for email delivery. But "reasonable" is not the same as "specified." The violation is not the AI's fault. It is a specification omission.
+
+<!-- → [TABLE: Notification superclass contract — rows: send() behavior; columns: what was stated in the specification, what AI generated, whether this is a prompt omission / model failure / human acceptance failure] -->
+
+This is the pattern I want you to see. The superclass contract has to be written before generation, not inferred after. When you read AI-generated code and ask "does this satisfy my contract?", the question only has an answer if the contract exists in explicit form. Otherwise you are asking whether a contract you have not yet written has been satisfied, which is not a question — it is a wish.
+
+---
+
+## Writing the Superclass Contract
+
+A superclass contract has four parts. I will state them precisely because the common failure is believing that two of them are sufficient and being surprised when the other two cause failures.
+
+**Invariants the superclass enforces.** What conditions must be true about every instance of this class at all times? A `Rectangle` invariant might be: width and height are both positive. A `BankAccount` invariant might be: balance is never negative. These are conditions that no subclass may violate, even when overriding methods.
+
+**Preconditions on each method.** What must be true before the method is called? These are the caller's obligations. If `send` requires a non-null, non-empty recipient, that is a precondition. Subclasses may not *strengthen* preconditions — they cannot demand more from callers than the superclass demanded. If the superclass accepted any non-empty string, the subclass cannot start rejecting strings that don't match a particular format. Callers wrote code against the superclass contract; the subclass must honor it.
+
+**Postconditions on each method.** What must be true after the method returns? These are the class's obligations to callers. Subclasses may not *weaken* postconditions — they cannot promise less than the superclass promised. If `send` promises to record one delivery attempt, a subclass that records three has weakened a postcondition (or violated an invariant the calling code depends on, depending on how you look at it).
+
+**Invariants each subclass may not break.** Some invariants belong specifically to the contract between superclass and client, not to any individual subclass. A `Rectangle` client is allowed to assume that setting width does not change height. That assumption is not stated as an explicit postcondition on `setWidth` — it is implied by what `Rectangle` is. But it must be stated explicitly in the contract if it is to survive subclassing, because AI will not preserve an unstated assumption.
+
+<!-- → [TABLE: Four-part superclass contract for Rectangle — rows: class invariant, setWidth precondition, setWidth postcondition, client assumptions the subclass may not break; showing the stated contract vs. what Square's override preserves or violates] -->
+
+---
+
+## LSP Violations in AI-Generated Hierarchies
+
+Here is what I have observed about AI-generated inheritance: the violations are almost never structural. The AI understands Java inheritance mechanics. It will correctly place fields, correctly call `super()`, correctly handle visibility. The violations are behavioral, and they cluster around three patterns.
+
+**Precondition strengthening.** The superclass accepts a broad range of inputs. The AI-generated subclass, optimized for a specific use case, quietly rejects inputs the superclass would have handled. A `parse(String input)` method in the superclass accepts any string and returns null on failure. The AI-generated subclass throws `IllegalArgumentException` on inputs the superclass would have silently returned null for. Code that called the superclass and handled null now gets an unexpected exception when handed the subclass.
+
+**Postcondition weakening.** The superclass promises a specific return value or state. The AI-generated subclass, adding functionality, subtly changes what it returns. The `send` example above is this pattern. The subclass does *more* — it retries, it logs richer data, it returns richer results. But in doing more, it violates the specific obligation the superclass made to callers.
+
+**Invariant violation.** The superclass maintains a class-level invariant. The AI-generated subclass, in the course of extending the class, breaks it. The square that must keep width equal to height. The bank account subclass that allows overdrafts because that is what the subclass is for, forgetting that the parent class made a no-overdraft promise.
+
+The audit for each pattern follows directly from the contract:
+
+For precondition strengthening: find every input the method accepts, trace what the subclass does with inputs the superclass would have handled, verify the behavior is identical.
+
+For postcondition weakening: find every postcondition the superclass stated, trace the subclass's return values and state changes, verify each postcondition is preserved.
+
+For invariant violation: state every class-level invariant, find every method that could modify the relevant state, verify the invariant holds after each modification.
+
+<!-- → [INFOGRAPHIC: Three LSP violation patterns as diagnosis flowchart — for each AI-generated subclass method, three audit questions: Does it accept strictly less input than the superclass? Does it promise strictly less in output/state? Does it break a class-level invariant? Each yes branch names the violation type and points to the fix.] -->
+
+---
+
+## Inheritance or Composition: A Decision With a Named Failure Mode
+
+There is a question that comes up whenever inheritance fails, and it comes up specifically when AI generates a hierarchy you did not fully specify: should this be inheritance at all, or should it be composition?
+
+I want to give you a framework for that decision that is more useful than "favor composition over inheritance." That principle is correct but not actionable. You need to know *which failure* each choice introduces.
+
+Inheritance introduces LSP risk. When you inherit, you are promising behavioral substitutability. Every client of the superclass now implicitly trusts that your subclass will honor the contract. If you cannot guarantee that — if your new class has fundamentally different behavior in some dimension the superclass made promises about — you will eventually break a client. The square-rectangle hierarchy is the canonical example: the geometric "is-a" relationship does not translate into a behavioral one.
+
+Composition introduces interface risk. When you compose — when your class holds an instance of another class and delegates to it — you have complete control over what you expose. You cannot accidentally inherit a method you didn't want. But you also cannot be polymorphically substituted. Code that expects a `Rectangle` cannot accept your composed shape, even if your composed shape does everything a rectangle does. You lose the design benefit of the type hierarchy.
+
+The decision rule is this: use inheritance when the subclass genuinely satisfies the superclass contract — when you have written the contract out and verified that no method in the subclass violates a precondition, postcondition, or invariant. Use composition when the subclass extends the superclass in a dimension that would require weakening a postcondition or strengthening a precondition. Do not use the geometric or ordinary-language "is-a" test. It will mislead you. A square is a rectangle. It cannot be a `Rectangle`.
+
+<!-- → [TABLE: Inheritance vs. composition decision — rows: use case, what the relationship promises, failure mode introduced, audit question to ask before choosing; shows both choices as legitimate with named costs, not composition as universally superior] -->
+
+When AI generates a hierarchy, your job is to ask: has the AI generated an inheritance relationship because it satisfies the behavioral contract, or because the geometric/linguistic relationship seemed obvious? AI defaults to what is linguistically natural. Your job is to audit for what is behaviorally true.
+
+---
+
+## What the Audit Actually Looks Like
+
+Let me be concrete. You have asked AI to generate an inheritance hierarchy. You have received it. Here is the sequence of questions you work through before accepting the artifact.
+
+**Does each subclass satisfy every precondition of its superclass methods?** Find the input range each superclass method accepts. Find the corresponding override or inherited method in the subclass. Check whether the subclass rejects any input the superclass would have accepted. If yes: precondition strengthening. Reject and revise.
+
+**Does each subclass satisfy every postcondition of its superclass methods?** Find what the superclass promises each method will return or what state it will leave. Find the corresponding behavior in the subclass. Check whether the subclass returns anything less specific, less reliable, or differently structured than the superclass promised. If yes: postcondition weakening. Reject and revise.
+
+**Does each subclass preserve every class invariant?** State the invariants of the superclass. Find every subclass method that modifies relevant state. Verify that after each modification, the invariant still holds. If a subclass method leaves the object in a state the superclass invariant prohibits: invariant violation. Reject and revise.
+
+**Is the inheritance relationship justified by behavioral substitutability, not linguistic convenience?** Ask the substitution question directly: if I hand this subclass to code written against the superclass, will anything break? If you cannot confidently say no — if you have to think about edge cases where the behavior diverges — you may have the wrong design. Consider composition.
+
+This is your handoff condition. Not "the code compiles." Not "the hierarchy looks right." "I have traced each of the four questions, found no violations, and can name the specific evidence for each."
+
+<!-- → [INFOGRAPHIC: Four-question audit flowchart for AI-generated hierarchies — sequential decision tree: Q1 precondition check → Q2 postcondition check → Q3 invariant check → Q4 substitutability check; each question has a PASS branch (continue to next) and a FAIL branch (name violation type, revise prompt, regenerate); final PASS leads to handoff condition met] -->
+
+---
+
+## The Central Lesson and Its Limit
+
+The central lesson is this: hierarchy is an architectural claim, not a code convenience.
+
+When you write `extends`, you are making a promise to every caller that will ever hold a reference to the superclass. You are promising that your subclass will not surprise them. That promise has to be made explicitly, audited carefully, and defended against the AI's tendency to generate what is structurally convenient rather than what is behaviorally true.
+
+The limit is also worth stating plainly. The behavioral contract I have described — preconditions, postconditions, invariants — captures the most common failure modes. It does not capture everything. It does not prevent failures that arise from threading, from state shared across instances, from emergent behavior when many objects interact. It does not guarantee that a hierarchy that satisfies the contract today will satisfy it after six more subclasses are added by different people at different times.
+
+What it gives you is a boundary. Everything inside the boundary — the obligations you have specified and audited — you have actually checked. Everything outside is still unknown. The discipline is not a proof of correctness. It is a method for making your commitments explicit enough to test, and your tests explicit enough to pass or fail.
+
+That is what makes it useful in an AI-augmented environment specifically. The AI will generate code that compiles and runs and does something plausible. Your job is to determine whether "plausible" is the same as "correct." You cannot do that without a specification. You cannot audit without a contract. And you cannot catch an LSP violation that will surface six months from now unless you asked, before accepting the artifact, whether behavioral substitutability actually holds.
+
+---
+
+## LLM Exercises
+
+1. **Prompt and specification.** Choose a superclass/subclass relationship relevant to your course project. Write the full superclass contract — invariants, preconditions, postconditions, client assumptions. Then write the AI prompt you would use to generate the hierarchy. Identify at least two behavioral constraints you stated explicitly in the prompt and explain which contract element each protects.
+
+2. **LSP audit.** You will be given an AI-generated inheritance hierarchy and the superclass contract it was supposed to satisfy. For each subclass method, identify whether it strengthens a precondition, weakens a postcondition, or violates a class invariant. For each violation, state whether the failure is a prompt omission, a model failure, or a human acceptance failure.
+
+3. **Inheritance or composition.** For a hierarchy in your project where you are uncertain whether inheritance is the right design, write a one-paragraph defense of each option. Each defense must name the specific failure mode it introduces. Conclude with a decision and explain what behavioral evidence would cause you to reverse it.
+
+4. **Handoff condition.** Write a handoff condition for an AI-generated inheritance hierarchy that is binary, testable without running the code, and grounded in the four-part contract. State the exact evidence — specific lines, specific invariant checks — you would need to produce to demonstrate the condition passed.
+
+<!-- → [TABLE: Common AI-generated LSP violations by pattern — columns: violation type (precondition strengthening / postcondition weakening / invariant violation), typical trigger (what in the prompt or context leads AI to this pattern), example, audit question that catches it] -->

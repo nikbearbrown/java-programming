@@ -12,7 +12,7 @@
 
 # Java in the Age of AI
 
-**Author:** Nik Bear Brown
+**Author:** Humanitarians AI
 
 ---
 

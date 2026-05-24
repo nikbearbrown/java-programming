@@ -25,7 +25,8 @@ That assertion is reasonable. If you hand this method a `Rectangle`, the height 
 
 This is not a compiler error. It is not a runtime crash (unless you have assertions enabled). It is a silent behavioral violation. The code looks correct. The types check out. The contract is broken anyway.
 
-<!-- → [IMAGE: Annotated code snippet of the widen() method with two side-by-side execution traces — left trace: Rectangle passed in, getHeight() returns h, setWidth() runs, assertion passes; right trace: Square passed in, setWidth() silently changes height, assertion fails; callout arrows highlight the exact line where behavioral divergence occurs] -->
+![Code snippet of the widen() method with two](images/07-inheritance-and-the-specification-contract-fig-01.png)
+*Figure 7.1 — Code snippet of the widen() method with two*
 
 That is the trap. And I want to spend this chapter explaining exactly why it is a trap, because it is the same trap that appears every time you accept an AI-generated inheritance hierarchy without auditing the behavioral promises the hierarchy makes.
 
@@ -43,7 +44,8 @@ If you have a piece of code that works correctly with objects of type `T`, and y
 
 The square-rectangle hierarchy fails this test because `widen` works correctly on rectangles and fails on squares — even though squares claim to be rectangles. The claim is geometrically accurate and behaviorally false.
 
-<!-- → [INFOGRAPHIC: Square-Rectangle LSP failure — three-panel sequence: (1) Rectangle hierarchy claimed, (2) widen() method with height-preservation invariant, (3) Square substituted, assertion fails; visual shows the gap between the structural claim and the behavioral violation] -->
+![Square-Rectangle LSP failure ](images/07-inheritance-and-the-specification-contract-fig-02.png)
+*Figure 7.2 — Square-Rectangle LSP failure *
 
 This distinction — between the structural claim and the behavioral contract — is exactly what you need to audit when AI generates an inheritance hierarchy. The AI knows how to write Java. It will produce syntactically correct, structurally coherent code. What it cannot guarantee, without an explicit specification from you, is that the behavioral contracts hold across the hierarchy.
 
@@ -71,7 +73,10 @@ And yet this may violate the superclass contract. If clients of `Notification` a
 
 Was that in your specification? If you did not write down "records exactly one delivery attempt," AI had no obligation to preserve it. The AI did something reasonable. It retried, because retrying is sensible behavior for email delivery. But "reasonable" is not the same as "specified." The violation is not the AI's fault. It is a specification omission.
 
-<!-- → [TABLE: Notification superclass contract — rows: send() behavior; columns: what was stated in the specification, what AI generated, whether this is a prompt omission / model failure / human acceptance failure] -->
+| what was stated in the specification | what AI generated | whether this is a prompt omission | model failure | human acceptance failure |
+| --- | --- | --- | --- | --- |
+| send() behavior | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | The pattern becomes easy to misuse or overlook. | The pattern becomes easy to misuse or overlook. |
+| columns: what was stated in the specification, what AI generated, whether this is a prompt omission | model failure | A concrete checkpoint for applying the chapter concept. | The pattern becomes easy to misuse or overlook. | The pattern becomes easy to misuse or overlook. |
 
 This is the pattern I want you to see. The superclass contract has to be written before generation, not inferred after. When you read AI-generated code and ask "does this satisfy my contract?", the question only has an answer if the contract exists in explicit form. Otherwise you are asking whether a contract you have not yet written has been satisfied, which is not a question — it is a wish.
 
@@ -89,7 +94,10 @@ A superclass contract has four parts. I will state them precisely because the co
 
 **Invariants each subclass may not break.** Some invariants belong specifically to the contract between superclass and client, not to any individual subclass. A `Rectangle` client is allowed to assume that setting width does not change height. That assumption is not stated as an explicit postcondition on `setWidth` — it is implied by what `Rectangle` is. But it must be stated explicitly in the contract if it is to survive subclassing, because AI will not preserve an unstated assumption.
 
-<!-- → [TABLE: Four-part superclass contract for Rectangle — rows: class invariant, setWidth precondition, setWidth postcondition, client assumptions the subclass may not break; showing the stated contract vs. what Square's override preserves or violates] -->
+| Item | Meaning |
+| --- | --- |
+| class invariant, setWidth precondition, setWidth postcondition, client assumptions the subclass may not break | A concrete checkpoint for applying the chapter concept. |
+| showing the stated contract vs. what Square's override preserves or violates | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -111,7 +119,8 @@ For postcondition weakening: find every postcondition the superclass stated, tra
 
 For invariant violation: state every class-level invariant, find every method that could modify the relevant state, verify the invariant holds after each modification.
 
-<!-- → [INFOGRAPHIC: Three LSP violation patterns as diagnosis flowchart — for each AI-generated subclass method, three audit questions: Does it accept strictly less input than the superclass? Does it promise strictly less in output/state? Does it break a class-level invariant? Each yes branch names the violation type and points to the fix.] -->
+![Three LSP violation patterns as diagnosis flowchart ](images/07-inheritance-and-the-specification-contract-fig-03.png)
+*Figure 7.3 — Three LSP violation patterns as diagnosis flowchart *
 
 ---
 
@@ -127,7 +136,10 @@ Composition introduces interface risk. When you compose — when your class hold
 
 The decision rule is this: use inheritance when the subclass genuinely satisfies the superclass contract — when you have written the contract out and verified that no method in the subclass violates a precondition, postcondition, or invariant. Use composition when the subclass extends the superclass in a dimension that would require weakening a postcondition or strengthening a precondition. Do not use the geometric or ordinary-language "is-a" test. It will mislead you. A square is a rectangle. It cannot be a `Rectangle`.
 
-<!-- → [TABLE: Inheritance vs. composition decision — rows: use case, what the relationship promises, failure mode introduced, audit question to ask before choosing; shows both choices as legitimate with named costs, not composition as universally superior] -->
+| Item | Meaning |
+| --- | --- |
+| use case, what the relationship promises, failure mode introduced, audit question to ask before choosing | The pattern becomes easy to misuse or overlook. |
+| shows both choices as legitimate with named costs, not composition as universally superior | A concrete checkpoint for applying the chapter concept. |
 
 When AI generates a hierarchy, your job is to ask: has the AI generated an inheritance relationship because it satisfies the behavioral contract, or because the geometric/linguistic relationship seemed obvious? AI defaults to what is linguistically natural. Your job is to audit for what is behaviorally true.
 
@@ -147,7 +159,8 @@ Let me be concrete. You have asked AI to generate an inheritance hierarchy. You 
 
 This is your handoff condition. Not "the code compiles." Not "the hierarchy looks right." "I have traced each of the four questions, found no violations, and can name the specific evidence for each."
 
-<!-- → [INFOGRAPHIC: Four-question audit flowchart for AI-generated hierarchies — sequential decision tree: Q1 precondition check → Q2 postcondition check → Q3 invariant check → Q4 substitutability check; each question has a PASS branch (continue to next) and a FAIL branch (name violation type, revise prompt, regenerate); final PASS leads to handoff condition met] -->
+![Four-question audit flowchart for AI-generated hierarchies ](images/07-inheritance-and-the-specification-contract-fig-04.png)
+*Figure 7.4 — Four-question audit flowchart for AI-generated hierarchies *
 
 ---
 
@@ -175,4 +188,48 @@ That is what makes it useful in an AI-augmented environment specifically. The AI
 
 4. **Handoff condition.** Write a handoff condition for an AI-generated inheritance hierarchy that is binary, testable without running the code, and grounded in the four-part contract. State the exact evidence — specific lines, specific invariant checks — you would need to produce to demonstrate the condition passed.
 
-<!-- → [TABLE: Common AI-generated LSP violations by pattern — columns: violation type (precondition strengthening / postcondition weakening / invariant violation), typical trigger (what in the prompt or context leads AI to this pattern), example, audit question that catches it] -->
+| violation type (precondition strengthening | postcondition weakening | invariant violation) | typical trigger (what in the prompt or context leads AI to this pattern) | example |
+| --- | --- | --- | --- | --- |
+| Common AI-generated LSP violations by pattern — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | Use the chapter example as the concrete test case. | Use the chapter example as the concrete test case. |
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 7.1 — Code snippet of the widen() method with two
+
+Create a standalone D3 v7 HTML file for Figure Code snippet of the widen() method with two. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Annotated code snippet of the widen() method with two side-by-side execution traces — left trace: Rectangle passed in, getHeight() returns h, setWidth() runs, assertion passes; right trace: Square passed in, setWidth() silently changes height, assertion fails; callout arrows highlight the exact line where behavioral divergence occurs. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/07-inheritance-and-the-specification-contract-fig-01.html`
+
+---
+
+### Figure 7.2 — Square-Rectangle LSP failure 
+
+Create a standalone D3 v7 HTML file for Figure Square-Rectangle LSP failure . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Square-Rectangle LSP failure — three-panel sequence: (1) Rectangle hierarchy claimed, (2) widen() method with height-preservation invariant, (3) Square substituted, assertion fails; visual shows the gap between the structural claim and the behavioral violation. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/07-inheritance-and-the-specification-contract-fig-02.html`
+
+---
+
+### Figure 7.3 — Three LSP violation patterns as diagnosis flowchart 
+
+Create a standalone D3 v7 HTML file for Figure Three LSP violation patterns as diagnosis flowchart . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Three LSP violation patterns as diagnosis flowchart — for each AI-generated subclass method, three audit questions: Does it accept strictly less input than the superclass? Does it promise strictly less in output/state? Does it break a class-level invariant? Each yes branch names the violation type and points to the fix.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/07-inheritance-and-the-specification-contract-fig-03.html`
+
+---
+
+### Figure 7.4 — Four-question audit flowchart for AI-generated hierarchies 
+
+Create a standalone D3 v7 HTML file for Figure Four-question audit flowchart for AI-generated hierarchies . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Four-question audit flowchart for AI-generated hierarchies — sequential decision tree: Q1 precondition check → Q2 postcondition check → Q3 invariant check → Q4 substitutability check; each question has a PASS branch (continue to next) and a FAIL branch (name violation type, revise prompt, regenerate); final PASS leads to handoff condition met. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/07-inheritance-and-the-specification-contract-fig-04.html`

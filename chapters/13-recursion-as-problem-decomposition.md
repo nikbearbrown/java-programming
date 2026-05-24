@@ -19,7 +19,8 @@ This chapter is about why recursion requires a different kind of specification t
 
 ## What Recursion Actually Is
 
-<!-- → [IMAGE: A set of nested Russian dolls — each doll contains a smaller version of itself, with the innermost doll solid and unopenable. Caption: "The smallest case is the one that does not open. Every other case reduces to it."] -->
+![The smallest case is the one that does not open. Every other case reduces to it.](images/13-recursion-as-problem-decomposition-fig-01.png)
+*Figure 13.1 — A set of nested Russian dolls *
 
 I want to be precise about what recursion is, because the standard explanation — "a method that calls itself" — describes the syntax without describing the contract.
 
@@ -31,7 +32,8 @@ The elegant thing about this is that you write one method, and it handles arbitr
 
 The dangerous thing about this is that the call stack handles the "handling all the levels below" part. Every recursive call adds a frame to the stack. When the recursion bottoms out, the stack unwinds. If the recursion is too deep before it bottoms out, the stack overflows before the unwinding can happen. The method is mathematically correct. The JVM runs out of memory for stack frames before it can finish.
 
-<!-- → [DIAGRAM: Two-panel call stack diagram — left panel "normal recursion": stack frames growing downward as countFiles calls itself (root → child → grandchild → file), then unwinding back up with return values accumulating. Right panel "overflow": same stack growing but never reaching a base case, frames accumulating until "StackOverflowError" cuts the stack off. Labels show frame count at each depth. Caption: "The stack grows with every call and shrinks only when the base case is reached."] -->
+![The stack grows with every call and shrinks only when the base case is reached.](images/13-recursion-as-problem-decomposition-fig-02.png)
+*Figure 13.2 — Call stack diagram *
 
 ---
 
@@ -51,7 +53,11 @@ The reduction step is where the most important failures live. A reduction step t
 
 The termination invariant is what the specification for `countFiles` omitted. The file tree does not have finite depth if symbolic links are followed — a symbolic link can point to a parent directory, creating a cycle. The recursive call on a symbolic link may receive a path the method has already visited, which means the invariant is violated, which means the recursion does not terminate.
 
-<!-- → [TABLE: Three-part recursive specification — three rows. Columns: Component / What it must name / Failure if omitted. Rows: Base case / Inputs that halt recursion, return value, why no further decomposition needed / Missing base case — recursion never stops; Recursive case / Reduction step that strictly shrinks input, what "smaller" means / Wrong reduction step — recursion shrinks incorrectly or not at all; Termination invariant / Property that holds across all calls, why it guarantees finite depth / Stack overflow — cycles, no bound, or wrong measure] -->
+| Component | What it must name | Failure if omitted |
+| --- | --- | --- |
+| Base case | Inputs that halt recursion, return value, why no further decomposition needed | Missing base case |
+| Recursive case | Reduction step that strictly shrinks input, what "smaller" means | Wrong reduction step |
+| Termination invariant | Property that holds across all calls, why it guarantees finite depth | Stack overflow |
 
 All three parts must be present. A specification with only the base case and recursive case — which is the usual pattern — is missing the invariant, and the invariant is what prevents symbolic-link cycles, undetected shared nodes, and the class of inputs for which the recursion runs longer than the available stack.
 
@@ -81,7 +87,8 @@ public int countFiles(File root) {
 
 This code is correct for finite, acyclic file trees with bounded depth. The specification did not say the input would be finite. The specification did not say the input would be acyclic. The specification did not say the depth would be bounded. The code is a faithful implementation of what was specified — which is the problem.
 
-<!-- → [DIAGRAM: Two file tree diagrams side by side — left: a normal finite tree with three levels, arrows descending to leaf nodes, recursion terminates; right: a tree with a symbolic link creating a cycle, arrows looping back upward, with "StackOverflowError" labeled at the point where the stack exhausts. Caption: "The code is the same in both cases. The input is different."] -->
+![The code is the same in both cases. The input is different.](images/13-recursion-as-problem-decomposition-fig-03.png)
+*Figure 13.3 — Two file tree diagrams side by side *
 
 The correct implementation adds cycle detection. The specification must name it:
 
@@ -132,7 +139,11 @@ Two: *the implementation includes a depth guard that returns an error or a defau
 
 Three: *the implementation uses an iterative approach with an explicit stack, replacing the JVM's implicit stack with a data structure whose size is managed explicitly.* This is always safe and sometimes necessary.
 
-<!-- → [TABLE: Three responses to the stack depth problem — three rows. Columns: Approach / When to use it / What the specification must name / What the implementation does at the limit. Rows: Bounded domain / Input depth is provably limited / Maximum depth and why it is safe / Nothing — limit is never reached; Depth guard / Input depth is unknown or unbounded / Maximum safe depth, error or default behavior / Returns error or default when depth exceeded; Iterative with explicit stack / Maximum safety required, or input depth very large / Stack data structure type, traversal order / Stack never exceeds available heap memory] -->
+| Approach | When to use it | What the specification must name | What the implementation does at the limit |
+| --- | --- | --- | --- |
+| Bounded domain | Input depth is provably limited | Maximum depth and why it is safe | Nothing |
+| Depth guard | Input depth is unknown or unbounded | Maximum safe depth, error or default behavior | Returns error or default when depth exceeded |
+| Iterative with explicit stack | Maximum safety required, or input depth very large | Stack data structure type, traversal order | Stack never exceeds available heap memory |
 
 The choice between these three approaches is an interpretive judgment — one of the five supervisory capacities. AI cannot make it, because AI does not know the deployment context. It does not know whether the method will be called on controlled internal data or arbitrary user-supplied archives. That knowledge lives with the engineer who is specifying the method.
 
@@ -154,7 +165,8 @@ The correct answer depends on three things.
 
 **The right measure.** Some problems that appear to require recursion actually have iterative solutions that are simpler once you see them. Counting files in a directory tree can be solved with a queue — start with the root, dequeue a node, enqueue its children, count the files you encounter. The iterative version is not harder to understand, and it is immune to stack overflow because the queue lives on the heap.
 
-<!-- → [INFOGRAPHIC: Decision tree for recursive vs. iterative — three decision nodes. First: "Is the recursion depth bounded and provably small?" → Yes: recursion is safe, evaluate readability. No: continue. Second: "Does the recursive structure make the solution significantly clearer?" → Yes: use recursion with depth guard. No: continue. Third: "Can the traversal be expressed as a queue or explicit stack?" → Yes: use iterative. No: use recursion with depth guard and document the limit.] -->
+![Decision tree for recursive vs](images/13-recursion-as-problem-decomposition-fig-04.png)
+*Figure 13.4 — Decision tree for recursive vs*
 
 The specification should record this decision and its rationale. Not just "I used recursion" but "I used recursion because the input depth is bounded by X, the recursive structure makes the termination invariant visible, and the maximum safe depth of Y is above the maximum input depth." That record is what makes the choice auditable — and what makes it possible for the next engineer to know whether the choice still holds when the input domain changes.
 
@@ -198,7 +210,13 @@ Symbolic link behavior: not checked. The method will follow symbolic links and r
 
 Three failures. Two are prompt omissions (the specification named that symbolic links must not be followed but did not say to use `getCanonicalPath()` for detection; the specification named `null` behavior but the implementation does not check). One is a specification gap that the prompt did not close (the invariant named "not previously visited" without naming the mechanism for tracking visited paths).
 
-<!-- → [TABLE: Recursion audit for countFiles — five rows, one per specification clause. Columns: Clause / Required behavior / Generated behavior / Pass or Fail / Root cause. Rows: base case / isFile() returns 1 / present / Pass / —; null check / listFiles() null returns 0 / absent / Fail / prompt omission; reduction step / strict child of root / direct listFiles() children / Pass / —; termination invariant / no path revisited / no visited tracking / Fail / specification gap; symbolic links / not followed / followed silently / Fail / prompt omission] -->
+| Clause | Required behavior | Generated behavior | Pass or Fail | Root cause |
+| --- | --- | --- | --- | --- |
+| base case | isFile() returns 1 | present | Pass | — |
+| null check | listFiles() null returns 0 | absent | Fail | prompt omission |
+| reduction step | strict child of root | direct listFiles() children | Pass | — |
+| termination invariant | no path revisited | no visited tracking | Fail | specification gap |
+| symbolic links | not followed | followed silently | Fail | prompt omission |
 
 The revised prompt names the `visited` parameter explicitly, specifies `getCanonicalPath()` as the mechanism for path identity, requires a null check on `listFiles()`, and states that any path already in `visited` returns zero immediately.
 
@@ -288,3 +306,45 @@ Convert this method to an iterative implementation using an explicit stack (not 
 ```
 
 After receiving the conversion and comparison, audit it: does the iterative version actually use a stack data structure, or does it use a queue (which would change traversal order)? Does the "maximum safe input size" reasoning correctly distinguish JVM stack frames from heap-allocated nodes? Revise any claim that treats heap and stack as interchangeable resources.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 13.1 — A set of nested Russian dolls 
+
+Create a standalone D3 v7 HTML file for Figure A set of nested Russian dolls . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A set of nested Russian dolls — each doll contains a smaller version of itself, with the innermost doll solid and unopenable. Caption: "The smallest case is the one that does not open. Every other case reduces to it.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/13-recursion-as-problem-decomposition-fig-01.html`
+
+---
+
+### Figure 13.2 — Call stack diagram 
+
+Create a standalone D3 v7 HTML file for Figure Call stack diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-panel call stack diagram — left panel "normal recursion": stack frames growing downward as countFiles calls itself (root → child → grandchild → file), then unwinding back up with return values accumulating. Right panel "overflow": same stack growing but never reaching a base case, frames accumulating until "StackOverflowError" cuts the stack off. Labels show frame count at each depth. Caption: "The stack grows with every call and shrinks only when the base case is reached.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/13-recursion-as-problem-decomposition-fig-02.html`
+
+---
+
+### Figure 13.3 — Two file tree diagrams side by side 
+
+Create a standalone D3 v7 HTML file for Figure Two file tree diagrams side by side . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two file tree diagrams side by side — left: a normal finite tree with three levels, arrows descending to leaf nodes, recursion terminates; right: a tree with a symbolic link creating a cycle, arrows looping back upward, with "StackOverflowError" labeled at the point where the stack exhausts. Caption: "The code is the same in both cases. The input is different.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/13-recursion-as-problem-decomposition-fig-03.html`
+
+---
+
+### Figure 13.4 — Decision tree for recursive vs
+
+Create a standalone D3 v7 HTML file for Figure Decision tree for recursive vs. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Decision tree for recursive vs. iterative — three decision nodes. First: "Is the recursion depth bounded and provably small?" → Yes: recursion is safe, evaluate readability. No: continue. Second: "Does the recursive structure make the solution significantly clearer?" → Yes: use recursion with depth guard. No: continue. Third: "Can the traversal be expressed as a queue or explicit stack?" → Yes: use iterative. No: use recursion with depth guard and document the limit.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/13-recursion-as-problem-decomposition-fig-04.html`

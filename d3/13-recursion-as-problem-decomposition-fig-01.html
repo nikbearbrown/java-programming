@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dependency and verification flow for Recursion as Problem</title>
+  <title>A set of nested Russian dolls </title>
   <style>
     :root {
       --color-white: #FFFFFF;
@@ -46,8 +46,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
   <script>
     const barData = [{"label":"A","value":72},{"label":"B","value":55},{"label":"C","value":44},{"label":"D","value":31},{"label":"E","value":18}];
-    const chartTitle = "Dependency and verification flow for Recursion as Problem";
-    const chartDesc = "Dependency and verification flow for Recursion as Problem Decomposition, showing the learner's specification, AI generation, human audit, handoff condition, and next component.";
+    const chartTitle = "A set of nested Russian dolls ";
+    const chartDesc = "A set of nested Russian dolls — each doll contains a smaller version of itself, with the innermost doll solid and unopenable. Caption: \"The smallest case is the one that does not open. Every other case reduces to it.\"";
     const tooltip = d3.select('body').append('div').attr('class', 'tooltip');
     function draw() {
       d3.select('#chart').selectAll('*').remove();

@@ -9,7 +9,8 @@ Two programmers — or, more likely in this course, two AI generations — are g
 
 You go looking for the bug. It is not in the caller. It is not in the test suite. The bug was born before either implementation was written. It was born the moment you defined the interface without specifying what it was actually required to do.
 
-<!-- → [INFOGRAPHIC: Timeline of where the bug was born — horizontal sequence: interface defined (no contract) → AI generates Implementation A → AI generates Implementation B → both compile → both pass tests → three weeks later, upstream failure; callout at the first step showing the missing postcondition (input not modified) that would have prevented every subsequent step from going wrong] -->
+![Timeline of where the bug was born ](images/10-abstract-contracts-and-interface-specifications-fig-01.png)
+*Figure 10.1 — Timeline of where the bug was born *
 
 I want to use this chapter to explain what went wrong and why it is so much harder to prevent than it sounds.
 
@@ -33,7 +34,9 @@ The test checked the right postcondition — the output is sorted — but missed
 
 This is the distinction I want you to internalize before we go any further. A signature tells you the shape of the method — what types go in, what type comes out, what exceptions it declares. A contract tells you the *behavior* of the method — what must be true before you call it, what must be true after it returns, what state it is and is not allowed to touch in between. The signature is necessary. Without it, you cannot call the method at all. But the signature is not sufficient. Without the contract, you cannot know whether the method you received is the method you needed.
 
-<!-- → [TABLE: Sortable interface — columns: what the signature specifies, what two valid implementations can legally differ on, which differences matter to callers; rows covering return value identity, input mutation, null handling, empty list behavior, duplicate handling] -->
+| what the signature specifies | what two valid implementations can legally differ on | which differences matter to callers |
+| --- | --- | --- |
+| interface — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -63,7 +66,14 @@ Each of these is a falsifiable claim. You can look at an implementation and dete
 
 **Edge cases.** What does the method do at the boundaries of its input space? Missing file: `IOException`. Empty file: empty list. File with only blank lines: list of empty strings. These are not afterthoughts. They are part of the contract, and they are the cases AI implementations most commonly get wrong — not because AI cannot handle edge cases, but because AI makes a choice about edge cases and the choice may not be yours.
 
-<!-- → [TABLE: Five-element contract for FileReaderService.readLines — rows: precondition, postcondition (never null), postcondition (blank lines preserved), postcondition (order preserved), invariant (no side effects), edge cases; columns: contract clause, what Implementation A does, what Implementation B does, which satisfies the clause] -->
+| contract clause | what Implementation A does | what Implementation B does | which satisfies the clause |
+| --- | --- | --- | --- |
+| precondition, postcondition (never null | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+| postcondition (blank lines preserved | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+| postcondition (order preserved | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+| invariant (no side effects | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+| edge cases | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+| columns: contract clause, what Implementation A does, what Implementation B does, which satisfies the clause | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -79,7 +89,8 @@ The hard skill is specifying what clients need to be able to rely on — the obs
 
 This distinction matters acutely when you are generating implementations with AI. The goal of an interface contract is interchangeability: any implementation that satisfies the contract can stand where any other implementation stands, and clients will not notice the difference. If your contract is behavioral, you can generate two implementations and audit both. If your contract has leaked implementation details, you have accidentally specified exactly one valid implementation and the second AI generation will violate your contract not because it is wrong but because it made different correct choices.
 
-<!-- → [INFOGRAPHIC: Two columns — behavioral specification (what observable properties must hold) vs. implementation specification (how those properties should be achieved); each column with three examples from FileReaderService, with arrows showing which column belongs in an interface contract and which belongs in a class-level comment] -->
+![Two columns ](images/10-abstract-contracts-and-interface-specifications-fig-02.png)
+*Figure 10.2 — Two columns *
 
 ---
 
@@ -99,7 +110,10 @@ The failure mode of choosing an interface when you needed an abstract class: imp
 
 The failure mode of choosing an abstract class when you needed an interface: you lock implementors out of extending other classes they need, you push implementation details into a place where they appear to be contractual, and you make it harder to generate independent implementations because the abstract class's structure has already made choices on their behalf.
 
-<!-- → [TABLE: Interface vs. abstract class — rows: constraint on implementors, inheritance flexibility, state sharing, default behavior, when AI generation is easier, failure mode of wrong choice; two columns showing how each design decision plays out] -->
+| Item | Meaning |
+| --- | --- |
+| constraint on implementors, inheritance flexibility, state sharing, default behavior, when AI generation is easier, failure mode of wrong choice | The pattern becomes easy to misuse or overlook. |
+| two columns showing how each design decision plays out | A concrete checkpoint for applying the chapter concept. |
 
 When AI generates a hierarchy using an abstract class, your audit question is: did the abstract class make implementation choices that belong in the contract, or choices that belong in a specific implementation? Concrete methods in abstract classes are the most common place this goes wrong. A concrete method says "here is how every subclass will do this unless it overrides." That is a design claim. If it is in your contract, it should be there deliberately, not because AI decided it was helpful.
 
@@ -127,7 +141,8 @@ The audit is a reading exercise. You go clause by clause through the contract an
 
 This sequence — one clause, one trace, one verdict — is your handoff condition. Not "it looks right." "I traced clause three, blank-line preservation, and found a `filter()` call on line 23 of Implementation A that removes blank lines. Implementation A fails clause three. Implementation B has no filter step. Implementation B passes clause three."
 
-<!-- → [INFOGRAPHIC: Clause-by-clause audit log — six rows (one per contract clause), three columns: clause text, Implementation A verdict with evidence, Implementation B verdict with evidence; Implementation A fails two clauses, Implementation B passes all six] -->
+![Clause-by-clause audit log ](images/10-abstract-contracts-and-interface-specifications-fig-03.png)
+*Figure 10.3 — Clause-by-clause audit log *
 
 ---
 
@@ -143,7 +158,8 @@ The goal of an interface contract is to make interchangeability real. If any imp
 
 Tests do not fix this. Tests sample the contract. They check specific inputs and specific outputs. A test suite that passes tells you the implementation satisfies the contract on the cases you thought to test. It tells you nothing about the cases you didn't. The contract is the thing the tests are supposed to be testing. Write the contract first. The tests follow from it.
 
-<!-- → [INFOGRAPHIC: Contract vs. tests — two overlapping circles: left circle is "contract space" (all behavioral obligations), right circle is "test coverage" (cases the test suite checks); the overlap is what tests verify; the left-only region is what the contract specifies but tests miss; label the left-only region "where the Sortable bug lives"; caption: tests sample the contract, they do not replace it] -->
+![Contract vs](images/10-abstract-contracts-and-interface-specifications-fig-04.png)
+*Figure 10.4 — Contract vs*
 
 ---
 
@@ -169,4 +185,48 @@ In an AI-augmented development environment, that precision is exactly what you n
 
 4. **Interchangeability test.** Write a handoff condition for a pair of AI implementations that is binary, testable without running the code, and grounded in the behavioral contract. State the exact evidence — specific lines, specific clause checks — you would need to produce for each implementation to demonstrate both are genuinely interchangeable.
 
-<!-- → [TABLE: Common interface contract omissions and the AI generation failures they cause — columns: omitted clause type (null handling / mutation behavior / empty input / return value identity / side effects), what AI typically generates when the clause is absent, downstream failure that results, how to add the clause to the prompt] -->
+| omitted clause type (null handling | mutation behavior | empty input | return value identity | side effects) |
+| --- | --- | --- | --- | --- |
+| Common interface contract omissions and the AI generation failures they cause — | The pattern becomes easy to misuse or overlook. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 10.1 — Timeline of where the bug was born 
+
+Create a standalone D3 v7 HTML file for Figure Timeline of where the bug was born . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Timeline of where the bug was born — horizontal sequence: interface defined (no contract) → AI generates Implementation A → AI generates Implementation B → both compile → both pass tests → three weeks later, upstream failure; callout at the first step showing the missing postcondition (input not modified) that would have prevented every subsequent step from going wrong. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/10-abstract-contracts-and-interface-specifications-fig-01.html`
+
+---
+
+### Figure 10.2 — Two columns 
+
+Create a standalone D3 v7 HTML file for Figure Two columns . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two columns — behavioral specification (what observable properties must hold) vs. implementation specification (how those properties should be achieved); each column with three examples from FileReaderService, with arrows showing which column belongs in an interface contract and which belongs in a class-level comment. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/10-abstract-contracts-and-interface-specifications-fig-02.html`
+
+---
+
+### Figure 10.3 — Clause-by-clause audit log 
+
+Create a standalone D3 v7 HTML file for Figure Clause-by-clause audit log . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Clause-by-clause audit log — six rows (one per contract clause), three columns: clause text, Implementation A verdict with evidence, Implementation B verdict with evidence; Implementation A fails two clauses, Implementation B passes all six. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/10-abstract-contracts-and-interface-specifications-fig-03.html`
+
+---
+
+### Figure 10.4 — Contract vs
+
+Create a standalone D3 v7 HTML file for Figure Contract vs. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Contract vs. tests — two overlapping circles: left circle is "contract space" (all behavioral obligations), right circle is "test coverage" (cases the test suite checks); the overlap is what tests verify; the left-only region is what the contract specifies but tests miss; label the left-only region "where the Sortable bug lives"; caption: tests sample the contract, they do not replace it. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/10-abstract-contracts-and-interface-specifications-fig-04.html`

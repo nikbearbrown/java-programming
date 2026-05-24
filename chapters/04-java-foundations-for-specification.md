@@ -13,7 +13,8 @@ That is the trap. And it is a trap precisely because the code *looks right*. Whe
 
 I want you to understand why the student's method was wrong — not because it crashed on empty input, but because the student had no way to know it was wrong. She had no specification to audit against. She had a result, and results feel like answers. They are not always answers. Sometimes they are the beginning of a more dangerous problem.
 
-<!-- → [INFOGRAPHIC: The trap — two-column split showing what the student saw (correct output on sample input, checkmark) vs. what was actually in the generated method (divide-by-zero on empty array, wrong rounding, wrong parameter type); the visual should make the gap between visible output and hidden violations legible at a glance] -->
+![The trap ](images/04-java-foundations-for-specification-fig-01.png)
+*Figure 4.1 — The trap *
 
 ---
 
@@ -37,7 +38,9 @@ When you write `throws IOException`, you are saying: callers of this method must
 
 None of this is syntax decoration. Every word in a Java method signature is a constraint. The signature is the outermost ring of the specification. If the AI generated a method with the wrong signature, the audit starts there, before you read a single line of the body.
 
-<!-- → [TABLE: Java signature elements and their specification meaning — columns: element, what it promises to callers, what it constrains in the body, common AI-generated violation] -->
+| element | what it promises to callers | what it constrains in the body | common AI-generated violation |
+| --- | --- | --- | --- |
+| Java signature elements and their specification meaning — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -57,7 +60,9 @@ Let me give you a more precise framework. A method specification has six parts. 
 
 **Side effects and failure behavior.** Does the method modify its inputs? Does it write to a file? Does it change any external state? What does it do when something goes wrong — does it return a sentinel value, throw a named exception, or crash? These are not edge cases. They are part of the specification, and they are frequently the part that AI generates incorrectly because they were not stated.
 
-<!-- → [TABLE: Six-part method specification for averageScore — rows: name, parameter list, return type, preconditions, postconditions, failure behavior — with one column showing what the student stated and one showing what AI generated] -->
+| Item | Meaning |
+| --- | --- |
+| name, parameter list, return type, preconditions, postconditions, failure behavior | with one column showing what the student stated and one showing what AI generated |
 
 Here is what a specification for the averaging method might look like if you write it out completely:
 
@@ -84,7 +89,8 @@ Invariants matter most when data is shared. If the same array is passed to three
 
 The way you catch it is not by running the code more. The way you catch it is by stating the invariant before generation and auditing for it before acceptance.
 
-<!-- → [INFOGRAPHIC: Before/after state diagram — array contents before method call vs. after, showing invariant preservation (contents unchanged) vs. invariant violation (sorted as side effect)] -->
+![Before/after state diagram ](images/04-java-foundations-for-specification-fig-02.png)
+*Figure 4.2 — Before/after state diagram *
 
 ---
 
@@ -106,7 +112,8 @@ If any of these are wrong, you do not need to read the method body. The artifact
 
 This sequence is your handoff condition. The artifact passes when it satisfies all five checks. It fails when it violates any one of them. "It seems to work" is not a handoff condition. "The method body produces correct output on non-empty, non-null input when I trace through it, and the signature, precondition handling, postcondition behavior, side effects, and failure behavior match the specification exactly" — that is a handoff condition.
 
-<!-- → [INFOGRAPHIC: Five-step audit sequence as a decision tree — each step has a pass branch (continue to next) and a fail branch (revise prompt, record failure, regenerate)] -->
+![Five-step audit sequence as a decision tree ](images/04-java-foundations-for-specification-fig-03.png)
+*Figure 4.3 — Five-step audit sequence as a decision tree *
 
 ---
 
@@ -120,7 +127,10 @@ Whether these differences matter for your specific use case is a question that r
 
 Sometimes the AI has a reason. Sometimes the reason is good. But you need to *ask*, because accepting the substitution silently means accepting all the consequences of the substitution — including the ones you haven't discovered yet.
 
-<!-- → [TABLE: int[] vs ArrayList<Integer> — rows: fixed length, element nullability, boxing/unboxing overhead, memory layout, null container behavior, performance at scale — columns: int[], ArrayList<Integer>, consequence of silent substitution; student should see that "both hold numbers" hides six distinct behavioral differences] -->
+| int[] | ArrayList<Integer> | consequence of silent substitution |
+| --- | --- | --- |
+| fixed length, element nullability, boxing | unboxing overhead, memory layout, null container behavior, performance at scale | columns: int[], ArrayList<Integer>, consequence of silent substitution |
+| student should see that "both hold numbers" hides six distinct behavioral differences | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -150,4 +160,40 @@ I want you to remember that limit. The temptation, once you learn to write speci
 
 4. **Invariant identification.** For a method that takes at least one array or collection as a parameter, state the invariant governing that input's contents. Describe exactly how you would check, by reading the generated code, whether the invariant is preserved.
 
-<!-- → [TABLE: Common type substitutions AI makes without permission — columns: specified type, substituted type, differences that matter, downstream consequences to check] -->
+| specified type | substituted type | differences that matter | downstream consequences to check |
+| --- | --- | --- | --- |
+| Common type substitutions AI makes without permission — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 4.1 — The trap 
+
+Create a standalone D3 v7 HTML file for Figure The trap . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: The trap — two-column split showing what the student saw (correct output on sample input, checkmark) vs. what was actually in the generated method (divide-by-zero on empty array, wrong rounding, wrong parameter type); the visual should make the gap between visible output and hidden violations legible at a glance. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/04-java-foundations-for-specification-fig-01.html`
+
+---
+
+### Figure 4.2 — Before/after state diagram 
+
+Create a standalone D3 v7 HTML file for Figure Before/after state diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Before/after state diagram — array contents before method call vs. after, showing invariant preservation (contents unchanged) vs. invariant violation (sorted as side effect). Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/04-java-foundations-for-specification-fig-02.html`
+
+---
+
+### Figure 4.3 — Five-step audit sequence as a decision tree 
+
+Create a standalone D3 v7 HTML file for Figure Five-step audit sequence as a decision tree . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Five-step audit sequence as a decision tree — each step has a pass branch (continue to next) and a fail branch (revise prompt, record failure, regenerate). Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/04-java-foundations-for-specification-fig-03.html`

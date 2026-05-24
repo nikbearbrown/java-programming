@@ -11,7 +11,12 @@ These are different questions. A system that works is evidence of effort. A syst
 
 I want to make one thing clear before we proceed. A complete Boondoggle Score is not a long score. Completeness means every necessary handoff has evidence. Length is not the metric. A score with twenty entries, each recording a genuine decision and a testable condition, is complete. A score with forty entries, half of which say "the class looks right," is not. The defense reveals which kind of score you have.
 
-<!-- → [TABLE: Score length vs. score completeness — columns: Score type, Entry count, Completeness, What the defense reveals. Row 1: Complete and concise / 20 / Yes — every handoff has evidence / Genuine decisions; testable conditions throughout. Row 2: Long but incomplete / 40 / No — half the conditions are notes, not handoff conditions / Formatted compliance; verification burden not met. Row 3: Short and incomplete / 8 / No — load-bearing components have no entries / Missing decisions; cascade risks unidentified. Row 4: Complete and annotated / 22 / Yes — revision history present / Process worked; failures recorded and resolved.] -->
+| Score type | Entry count | Completeness | What the defense reveals |
+| --- | --- | --- | --- |
+| conditions throughout. Row 2: Long but incomplete | 40 | No | half the conditions are notes, not handoff conditions |
+| verification burden not met. Row 3: Short and incomplete | 8 | No | load-bearing components have no entries |
+| cascade risks unidentified. Row 4: Complete and annotated | 22 | Yes | revision history present |
+| failures recorded and resolved. | The pattern becomes easy to misuse or overlook. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -25,7 +30,9 @@ The defense is not a demonstration that the code runs. Running code is the minim
 
 What the defense is: an examination of three consequential decisions, defended against specific alternatives by naming the failure mode each alternative introduces; an identification of the two highest-risk handoffs, with an explanation of why they are high-risk and what additional verification step would catch cascade failures before they propagate; and a claim that the score is complete, supported by evidence that every necessary handoff is represented.
 
-<!-- → [TABLE: What the defense examines vs. what it does not — columns: Examines, Does not examine. Row 1: Why the system is decomposed this way / That the system runs. Row 2: Why these prompts delegate safely / How many components were built. Row 3: Why these handoff conditions catch important failures / Whether the code is clean or idiomatic. Row 4: Why rejected alternatives were rejected / Whether the student worked hard. Row 5: Where cascade failures would propagate / Whether all tests pass.] -->
+| Examines | Does not examine |
+| --- | --- |
+| What the defense examines vs. what it does not — | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -47,9 +54,12 @@ For each of the three, the defense has a specific structure:
 
 The defense structure is: what I chose, what I rejected, what the rejection prevents, where the evidence lives. This is not a different intellectual operation from what you have been doing since Chapter 3. It is the same operation — name the obligation, name the handoff condition, name the evidence — applied retrospectively across the whole system.
 
-<!-- → [INFOGRAPHIC: Two-column comparison — left column labeled "Weak defense" with three bullets: "I used a HashMap," "A list would have been slower," "The tests pass." Right column labeled "Strong defense" with three bullets: "HashMap<String, Task> keyed by id in TaskRepository.tasks, not ArrayList<Task> with linear scan," "At 100k tasks O(n) findById scans 50k elements per call; violates responsiveness invariant; invisible in classroom testing," "Score entry for TaskRepository: handoff condition line 3 verified by inspection." Caption: "Precision at every level — decision, failure mode, evidence location — is what distinguishes a defense from a summary."] -->
+![Precision at every level — decision, failure mode, evidence location — is what distinguishes a defense from a summary.](images/16-final-boondoggle-score-defense-fig-01.png)
+*Figure 16.1 — Two-column comparison *
 
-<!-- → [TABLE: Defense structure for three consequential decisions — columns: Element, What it requires, Example. Row 1: The decision / Exact type, name, and location / "HashMap<String, Task> keyed by id in TaskRepository.tasks field". Row 2: The alternative / Exact competing approach / "ArrayList<Task> with linear scan in findById". Row 3: The failure mode / Specific consequence of the alternative at stated scale / "O(n) lookup at 100k tasks produces latency that violates responsiveness invariant; invisible in classroom testing". Row 4: The evidence / Boondoggle Score entry that records the decision / "Score entry for TaskRepository, handoff condition line 3: field declared HashMap<String, Task>".] -->
+| Element | What it requires | Example |
+| --- | --- | --- |
+| Defense structure for three consequential decisions — | A concrete checkpoint for applying the chapter concept. | Use the chapter example as the concrete test case. |
 
 ---
 
@@ -71,7 +81,8 @@ For each of the two highest-risk handoffs, the defense requires:
 
 This verification step should have been in the score. If it wasn't, the defense is the moment you explain what you would add.
 
-<!-- → [INFOGRAPHIC: Cascade failure propagation diagram — top node: Task model, with incorrect field int priority instead of Priority. Arrows pointing to three nodes: TaskRepository (stores Task; priority field accessed in comparator), TaskController (reads priority for display logic), TaskConsoleView (formats priority for output). Each downstream node labeled "needs rebuild." Caption: "A silent failure at the domain model handoff propagates to every component that touches the field. The cascade is invisible until integration."] -->
+![A silent failure at the domain model handoff propagates to every component that touches the field. The cascade is invisible until integration.](images/16-final-boondoggle-score-defense-fig-02.png)
+*Figure 16.2 — Cascade failure propagation diagram *
 
 ---
 
@@ -89,7 +100,9 @@ Completeness is not self-evident. It must be argued. The argument has four parts
 
 **Supervisory capacity labels.** Every human task in the score is labeled with the supervisory capacity it exercises: Problem Formulation, Tool Orchestration, Plausibility Auditing, Interpretive Judgment, or Executive Integration. The labels are not decoration. They tell the reader what kind of human judgment was applied at each step. A score in which every entry is labeled "Plausibility Auditing" is a score that records verification without recording the prior decisions that determined what to verify. That is an incomplete picture of the human role.
 
-<!-- → [TABLE: Completeness checklist for the final score — columns: Criterion, What to check, Passes when, Fails when. Row 1: Coverage / Every component in the dependency graph / Each has a score entry or is accounted for in a containing entry's handoff condition / Any load-bearing component with no entry and no mention. Row 2: Testability / Every handoff condition / Evaluable by reading artifact alone / Requires running, asking, or inferring. Row 3: Failure records / Revision history or explicit clean-build statement / One of the two is present / Absence of both. Row 4: Supervisory capacity labels / Every human task / Labeled with one of the five capacities / Unlabeled, or all labeled the same capacity.] -->
+| Criterion | What to check | Passes when | Fails when |
+| --- | --- | --- | --- |
+| Completeness checklist for the final score — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -105,7 +118,9 @@ The revised decision: `HashMap<String, Task>` with `findById` implemented as `ta
 
 This narrative — original, evidence, revision — is evidence that the Boondoggle Score functioned as a verification mechanism rather than a documentation exercise. It is the strongest argument you can make in the defense.
 
-<!-- → [TABLE: Defense structure for a changed decision — columns: Element, What it requires. Row 1: Original decision / What was specified; which prompt and which handoff condition. Row 2: Evidence that exposed the weakness / Which audit step, which entry, which specific failure: prompt omission, model failure, or human acceptance failure. Row 3: How the specification changed / What the revised prompt said that the original didn't; what constraint was added. Row 4: Revised handoff condition / What can now be verified that couldn't be verified before. Row 5: What the change prevented / The failure mode the original design would have introduced downstream.] -->
+| Element | What it requires |
+| --- | --- |
+| Defense structure for a changed decision — | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -123,7 +138,12 @@ This is the conductor's frame, applied at scale. Not "I wrote this code" but "I 
 
 That is the claim the defense makes. The score is the evidence.
 
-<!-- → [TABLE: What a complete defense proves and does not prove — columns: Claim, Proved by a complete defense?, Evidence. Row 1: Every obligation had an acceptance condition / Yes / Handoff conditions present and testable throughout score. Row 2: Consequential decisions were made consciously / Yes / Three decisions defended with alternatives and failure modes. Row 3: Highest-risk handoffs were identified / Yes / Two entries with cascade analysis and additional verification steps. Row 4: Human supervisory role was exercised deliberately / Yes / Every human task labeled with supervisory capacity. Row 5: System is correct in untested edge cases / No / Score specifies obligations; cannot enumerate all failure modes. Row 6: Architecture is optimal / No / Alternatives were rejected for named reasons; better designs may exist. Row 7: No bugs remain in generated code / No / Handoff conditions check specification compliance; not exhaustive behavior verification.] -->
+| Claim | Proved by a complete defense? | Evidence |
+| --- | --- | --- |
+| throughout score. Row 2: Consequential decisions were made consciously | Yes | Three decisions defended with alternatives and failure modes. Row 3: Highest-risk handoffs were identified |
+| cannot enumerate all failure modes. Row 6: Architecture is optimal | No | Alternatives were rejected for named reasons |
+| better designs may exist. Row 7: No bugs remain in generated code | No | Handoff conditions check specification compliance |
+| not exhaustive behavior verification. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -136,3 +156,29 @@ That is the claim the defense makes. The score is the evidence.
 3. **Completeness audit.** Apply the four-part completeness checklist to your own final score. For each criterion, write one sentence stating whether it passes or fails, and one sentence of evidence. If any criterion fails, write the revision. If all criteria pass, write the explicit clean-build statement that makes "no failures" verifiable rather than ambiguous.
 
 4. **Changed-decision defense.** Identify one decision in your project that changed during the course — a prompt revision, a structure substitution, a handoff condition that was tightened after a failure. Write the full five-part changed-decision defense: original decision, evidence that exposed the weakness, how the specification changed, revised handoff condition, and failure mode the change prevented. If no decision changed, identify the decision most likely to have needed change had the system been deployed at production scale, and write the hypothetical defense.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 16.1 — Two-column comparison 
+
+Create a standalone D3 v7 HTML file for Figure Two-column comparison . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-column comparison — left column labeled "Weak defense" with three bullets: "I used a HashMap," "A list would have been slower," "The tests pass." Right column labeled "Strong defense" with three bullets: "HashMap<String, Task> keyed by id in TaskRepository.tasks, not ArrayList<Task> with linear scan," "At 100k tasks O(n) findById scans 50k elements per call; violates responsiveness invariant; invisible in classroom testing," "Score entry for TaskRepository: handoff condition line 3 verified by inspection." Caption: "Precision at every level — decision, failure mode, evidence location — is what distinguishes a defense from a summary.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md 
+
+> Reference implementation: `d3/16-final-boondoggle-score-defense-fig-01.html`
+
+---
+
+### Figure 16.2 — Cascade failure propagation diagram 
+
+Create a standalone D3 v7 HTML file for Figure Cascade failure propagation diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Cascade failure propagation diagram — top node: Task model, with incorrect field int priority instead of Priority. Arrows pointing to three nodes: TaskRepository (stores Task; priority field accessed in comparator), TaskController (reads priority for display logic), TaskConsoleView (formats priority for output). Each downstream node labeled "needs rebuild." Caption: "A silent failure at the domain model handoff propagates to every component that touches the field. The cascade is invisible until integration.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/16-final-boondoggle-score-defense-fig-02.html`

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dependency and verification flow for Midpoint Integration: Boondoggle</title>
+  <title>Two-component mismatch diagram </title>
   <style>
     :root {
       --color-white: #FFFFFF;
@@ -46,8 +46,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
   <script>
     const barData = [{"label":"A","value":72},{"label":"B","value":55},{"label":"C","value":44},{"label":"D","value":31},{"label":"E","value":18}];
-    const chartTitle = "Dependency and verification flow for Midpoint Integration: Boondoggle";
-    const chartDesc = "Dependency and verification flow for Midpoint Integration: Boondoggle Score Part I, showing the learner's specification, AI generation, human audit, handoff condition, and next component.";
+    const chartTitle = "Two-component mismatch diagram ";
+    const chartDesc = "Two-component mismatch diagram — left box: TaskRepository, method defined as add(Task t). Right box: TaskController, calls repository.save(task). Arrow between them labeled \"NoSuchMethodError at runtime.\" Below both boxes: \"Both passed indi";
     const tooltip = d3.select('body').append('div').attr('class', 'tooltip');
     function draw() {
       d3.select('#chart').selectAll('*').remove();

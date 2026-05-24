@@ -13,7 +13,9 @@ The failure is not in the Java. The failure is in the prompt. The prompt didn't 
 
 This chapter is about the difference between those two things — and about how to write a specification precise enough that the two converge.
 
-<!-- → [TABLE: The ArrayList failure at scale — columns: Task count, Lookup behavior, Time consequence, User experience. Row 1: 100 tasks / Scans ~50 elements on average / Microseconds / Imperceptible. Row 2: 10,000 tasks / Scans ~5,000 elements on average / Milliseconds / Slight lag. Row 3: 100,000 tasks / Scans ~50,000 elements on average / Tens of milliseconds / "It froze." Row 4: 1,000,000 tasks / Scans ~500,000 elements on average / Hundreds of milliseconds / Genuinely broken. Caption: "Same code. Same logic. Same tests passing. Different scale reveals a specification the prompt never stated."] -->
+| Task count | Lookup behavior | Time consequence | User experience |
+| --- | --- | --- | --- |
+| The ArrayList failure at scale — | The pattern becomes easy to misuse or overlook. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -36,7 +38,9 @@ The difference in safety is real, but I want to focus on the difference in speci
 
 This is what type-safe specification means in this course. Not just "use generics because they're better practice" — use generics because they make the data contract visible, inspectable, and auditable without running the code.
 
-<!-- → [TABLE: Raw collection vs. generic collection as specification — columns: Dimension, Raw (ArrayList), Generic (ArrayList<Task>). Row 1: What the compiler guarantees / Nothing about element type / Every element is a Task. Row 2: Cast required at retrieval? / Yes — and cast can fail at runtime / No — type known at compile time. Row 3: Handoff condition visibility / Can't check element type by reading declaration / Declaration itself states the contract. Row 4: Downstream prompt clarity / AI inferring element type from context / AI receiving explicit element type as specification. Row 5: Audit evidence / Must trace element types through logic / Declaration line is the evidence.] -->
+| Dimension | Raw (ArrayList) | Generic (ArrayList<Task>) |
+| --- | --- | --- |
+| Raw collection vs. generic collection as specification — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -58,7 +62,8 @@ The practical consequence for this course is this: an unchecked cast warning in 
 
 If you can't state that reason, the warning is a handoff condition failure waiting to be discovered. The audit step is where you find it.
 
-<!-- → [INFOGRAPHIC: Timeline diagram — compile time on the left, runtime on the right. At compile time: ArrayList<Task> enforced by compiler, generic type information present. At runtime: type parameter erased, only ArrayList visible to JVM. Between them: unchecked cast warning marks the boundary where compile-time guarantees end. Caption: "Type erasure is why an unchecked cast warning is evidence of a guarantee gap, not just a style note."] -->
+![Type erasure is why an unchecked cast warning is evidence of a guarantee gap, not just a style note.](images/12-generics-collections-and-type-safe-specification-fig-01.png)
+*Figure 12.1 — Timeline diagram *
 
 ---
 
@@ -82,9 +87,13 @@ This prompt will produce working code. At 100 tasks, it will produce correct cod
 
 The second prompt is longer. It is also the specification of a system that will perform correctly at production scale. Every clause in the second prompt traces to the access pattern requirements. The forbidden items — `ArrayList`, `LinkedList`, iteration-based lookup — are forbidden precisely because they would satisfy the prompt as written while violating the prompt as needed.
 
-<!-- → [TABLE: Clause-by-clause traceability — the access pattern prompt — columns: Prompt clause, Access pattern requirement it encodes, What breaks if omitted. Row 1: "Use HashMap<String, Task> keyed by task id" / Dominant op: retrieval by id / AI chooses ArrayList; O(n) lookup. Row 2: "Expected scale 10,000–100,000 tasks" / Expected scale / AI has no scale context; optimizes for simplicity. Row 3: "No duplicate ids" / Uniqueness requirement / AI may allow duplicate keys; invariant violated silently. Row 4: "Do not use ArrayList, LinkedList, or iterating collections" / Wrong-choice failure mode, made explicit / AI selects a legal but wrong collection that satisfies a weaker reading of the prompt.] -->
+| Prompt clause | Access pattern requirement it encodes | What breaks if omitted |
+| --- | --- | --- |
+| Clause-by-clause traceability | the access pattern prompt — | A concrete checkpoint for applying the chapter concept. |
 
-<!-- → [TABLE: Access pattern specification elements — columns: Element, What to specify, Example for task repository. Row 1: Dominant operation / The operation called most frequently in production / Retrieval by task id on every user interaction. Row 2: Expected scale / Order of magnitude for collection size / 10,000–100,000 tasks. Row 3: Ordering requirements / Whether insertion order, sort order, or no order matters / No ordering required. Row 4: Uniqueness requirements / Whether duplicate elements or keys are permitted / No duplicate task ids. Row 5: Wrong-choice failure mode / What breaks when the wrong collection is used / Linear scan on every retrieval; freezes at scale.] -->
+| Element | What to specify | Example for task repository |
+| --- | --- | --- |
+| Access pattern specification elements — | A concrete checkpoint for applying the chapter concept. | Use the chapter example as the concrete test case. |
 
 ---
 
@@ -102,7 +111,9 @@ Here are the decisions that matter most in practice, and the reasoning behind ea
 
 **`ArrayDeque<E>` vs. `Stack<E>` vs. `LinkedList<E>` for stack/queue behavior.** `Stack<E>` is a legacy class and should not be used in new code — it extends `Vector`, which synchronizes every operation unnecessarily. `ArrayDeque<E>` implements both `Deque<E>` and `Queue<E>` efficiently. If you need stack or queue behavior, the prompt should specify `ArrayDeque<E>` and the handoff condition should verify that `Stack` does not appear.
 
-<!-- → [TABLE: Collection decision guide — columns: If you need..., Use..., Do not use..., Why the wrong choice fails. Row 1: Fast lookup by index, frequent iteration / ArrayList<E> / LinkedList<E> / O(n) index access in LinkedList due to pointer traversal. Row 2: Fast lookup by key, no order needed / HashMap<K,V> / TreeMap<K,V> / TreeMap adds O(log n) overhead for no benefit. Row 3: Fast lookup by key, sorted key iteration / TreeMap<K,V> / HashMap<K,V> / HashMap's key order is undefined and changes on resize. Row 4: Membership testing, no duplicates / HashSet<E> / ArrayList<E> / ArrayList.contains() is O(n); HashSet.contains() is O(1). Row 5: Stack or queue behavior / ArrayDeque<E> / Stack<E> / Stack synchronizes every operation; legacy class, avoid.] -->
+| If you need |
+| --- |
+| Collection decision guide — |
 
 ---
 
@@ -120,7 +131,9 @@ The practical rule, called PECS (Producer Extends, Consumer Super), is this: if 
 
 For this course, the important audit point is simpler than the full derivation: a wildcard in a position where an exact type was available is evidence of an underspecified prompt. If AI generates `List<?>` where the prompt should have said `List<Task>`, the handoff condition fails — not because wildcards are wrong, but because an unknown type where a known type was required means the specification didn't state what it should have.
 
-<!-- → [TABLE: Wildcard usage guide — columns: Situation, Use, Do not use, Why. Row 1: Reading elements from a collection of Task or subclasses / List<? extends Task> / List<?> / List<?> prevents calling any Task methods on retrieved elements. Row 2: Adding Task objects to a collection / List<? super Task> / List<? extends Task> / Compiler rejects add on an extends wildcard. Row 3: Both reading and writing Task objects / List<Task> / Any wildcard / Exact type is required when both operations are needed. Row 4: Generic sort method requiring orderable elements / <T extends Comparable<T>> / Raw T or unchecked cast / Bound makes the requirement inspectable at the method signature.] -->
+| Situation | Use | Do not use | Why |
+| --- | --- | --- | --- |
+| at the method signature. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | It makes the underlying reasoning visible instead of implied. |
 
 ---
 
@@ -137,7 +150,9 @@ This last point connects directly to Chapter 9. A repository handoff condition t
 
 The collection choice is an architectural decision. Architectural decisions belong in the Boondoggle Score, not in the generated code comment that nobody reads.
 
-<!-- → [TABLE: Handoff condition elements for a generic collection component — columns: Element, Weak version (fails), Strong version (passes). Row 1: Collection type / "stores tasks" / "field declared private final Map<String, Task>" Row 2: Warning status / "no obvious errors" / "no unchecked cast warnings on compilation" Row 3: Access pattern justification / omitted / "HashMap chosen for O(1) average-case retrieval by id; TreeMap explicitly rejected" Row 4: Downstream invariants / "add and findById work correctly" / "findById is O(1) by key lookup; no iteration in retrieval methods"] -->
+| Element | Weak version (fails) | Strong version (passes) |
+| --- | --- | --- |
+| Handoff condition elements for a generic collection component — | A concrete checkpoint for applying the chapter concept. | A specific, evidence-linked version that readers can verify. |
 
 ---
 
@@ -157,7 +172,9 @@ The handoff condition for this prompt is equally specific:
 
 Every clause is binary. Every clause is inspectable by reading the code. Every clause protects a downstream dependency.
 
-<!-- → [TABLE: Handoff condition clause anatomy for TaskRepository — columns: Clause, What it verifies, Why it belongs. Row 1: "storage field declared private final Map<String, Task>" / Collection type and type parameter / Visible on declaration line; no execution needed. Row 2: "add method uses tasks.put(task.getId(), task)" / Key strategy and insert behavior / Verifiable by reading one line of the method body. Row 3: "findById uses tasks.get(id)" / O(1) lookup, no iteration / Confirms HashMap's performance guarantee is actually used. Row 4: "No method iterates through the map to find by id" / Access pattern compliance / Rules out hidden linear scans that compile correctly but violate spec. Row 5: "No raw types in any field or method signature" / Type-safe specification throughout / Declaration-level check; visible before any behavior is exercised.] -->
+| Clause | What it verifies | Why it belongs |
+| --- | --- | --- |
+| Handoff condition clause anatomy for TaskRepository — | A concrete checkpoint for applying the chapter concept. | It makes the underlying reasoning visible instead of implied. |
 
 ---
 
@@ -170,3 +187,21 @@ Every clause is binary. Every clause is inspectable by reading the code. Every c
 3. **Wildcard diagnosis.** AI generates a method signature `public void processItems(List<?> items)` for a method that is supposed to call `item.getPriority()` on each element, where `getPriority()` is defined in the `Task` interface. Explain why this method signature is wrong in terms of what the wildcard prevents. Write the corrected signature with the appropriate bound, and write the handoff condition that would verify the corrected version.
 
 4. **Collection substitution defense.** Your `EventLog` repository stores log entries in insertion order and the dominant operation is appending a new entry at the end. AI generates `LinkedList<LogEntry>`. You recall that `ArrayList<LogEntry>` is usually faster for appending due to memory layout, even though both are O(1) amortized. Write the Boondoggle Score entry for this decision: AI task, human task, handoff condition, evidence, and supervisory capacity. Your evidence must name the access pattern, the scale assumption, and the reason you either accept `LinkedList` or revise the prompt to require `ArrayList`.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 12.1 — Timeline diagram 
+
+Create a standalone D3 v7 HTML file for Figure Timeline diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Timeline diagram — compile time on the left, runtime on the right. At compile time: ArrayList<Task> enforced by compiler, generic type information present. At runtime: type parameter erased, only ArrayList visible to JVM. Between them: unchecked cast warning marks the boundary where compile-time guarantees end. Caption: "Type erasure is why an unchecked cast warning is evidence of a guarantee gap, not just a style note.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/12-generics-collections-and-type-safe-specification-fig-01.html`

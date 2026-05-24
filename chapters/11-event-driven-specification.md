@@ -17,7 +17,8 @@ Specifying an event-driven component means specifying not just what the handler 
 
 ## Events Are Not Method Calls
 
-<!-- → [IMAGE: Two diagrams side by side — left: a linear call stack with arrows flowing top to bottom labeled "Procedural: you control the sequence"; right: a state machine with multiple incoming event arrows at each node labeled "Event-driven: the sequence arrives from outside"] -->
+![Two diagrams side by side ](images/11-event-driven-specification-fig-01.png)
+*Figure 11.1 — Two diagrams side by side *
 
 Before we can specify event-driven behavior, I want to make sure you understand what makes it structurally different from everything we have written in this course so far.
 
@@ -45,7 +46,11 @@ A state machine specification has five components. All five are necessary. Missi
 
 **No-op cases.** This is the part that almost always gets omitted from the specification, and it is the part that the double-click failure lives in. For every state, for every event that can arrive in that state, the specification must say what happens. If the answer is "nothing," the specification must say nothing — because "nothing" is an implementation choice, and AI will not make it unless instructed. `SUBMITTING + submitClicked → SUBMITTING: no action` is a valid transition. It must be written. If it is not written, AI writes a handler that saves on every click, because saving on click is what the happy-path specification says to do.
 
-<!-- → [TABLE: State machine for the form submission feature — rows: each (state, event) pair. Columns: Current State / Event / Guard / Next State / Action. Includes the no-op rows explicitly: SUBMITTING + submitClicked → SUBMITTING, no action; SUBMITTED + submitClicked → SUBMITTED, no action; EMPTY + submitClicked → EMPTY, show validation error] -->
+| Current State | Event | Guard | Next State | Action |
+| --- | --- | --- | --- | --- |
+| each (state, event) pair. Columns: Current State | Event | Guard | Next State | Action. Includes the no-op rows explicitly: SUBMITTING + submitClicked → SUBMITTING, no action |
+| SUBMITTED + submitClicked → SUBMITTED, no action | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
+| EMPTY + submitClicked → EMPTY, show validation error | The pattern becomes easy to misuse or overlook. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 The no-op cases are not edge cases. They are the specification of what the system *refuses to do* — which is as important as the specification of what it does.
 
@@ -69,7 +74,8 @@ Strong prompt: *Write a handler for the submit button. The handler checks whethe
 
 The second prompt produces a handler that is auditable. The first produces a handler that compiles.
 
-<!-- → [DIAGRAM: Annotated state machine for the form submission feature — four states (EMPTY, VALID, SUBMITTING, SUBMITTED) as labeled circles, with directed arrows for each named transition. No-op transitions shown as self-loops with "no action" labels. Guards shown as conditions on the relevant arrows. This is the visual equivalent of the full state machine specification table above.] -->
+![State machine for the form submission feature ](images/11-event-driven-specification-fig-02.png)
+*Figure 11.2 — State machine for the form submission feature *
 
 ---
 
@@ -101,7 +107,8 @@ If `refreshForm()` is called after each successful submission — to reset the f
 
 The audit catches this by checking registration scope before anything else: where is `setOnAction` called, and how many times can that line execute during the component's lifetime? If the answer is more than once, the registration is wrong.
 
-<!-- → [IMAGE: Two side-by-side sequence diagrams — left: single registration in initialize(), showing one handler call per click across three submissions; right: registration in refreshForm(), showing one call on first submission, two on second, three on third. Caption: "Registration count compounds silently."] -->
+![Registration count compounds silently.](images/11-event-driven-specification-fig-03.png)
+*Figure 11.3 — Two side-by-side sequence diagrams *
 
 The state machine specification makes this visible: the state machine has one instance per component. The registration that wires events to transitions should happen once, at initialization. Any subsequent call that re-registers is adding a second state machine on top of the first.
 
@@ -135,7 +142,8 @@ public void handleSubmit(ActionEvent event) {
 }
 ```
 
-<!-- → [DIAGRAM: Two side-by-side object diagrams — left: "Wrong" — RequestFormController holds a reference to MainAppController, arrow labeled "statusLabel.setText()" pointing directly at MainAppController's internal field; right: "Correct" — RequestFormController holds a Consumer<MaintenanceRequest> callback, arrow labeled "onSubmitSuccess.accept(request)" pointing to MainAppController's own handler method. Caption: "The dependency is the same in both cases. In the wrong version it is hidden. In the correct version it is named."] -->
+![The dependency is the same in both cases. In the wrong version it is hidden. In the correct version it is named.](images/11-event-driven-specification-fig-04.png)
+*Figure 11.4 — Two side-by-side object diagrams *
 
 The handoff condition for this failure is: *no handler method in this controller accesses fields or methods of a different controller through a stored reference.* If the condition fails, the audit names the specific cross-controller dependency and the prompt revision adds the callback pattern to the specification.
 
@@ -184,7 +192,9 @@ No-op in `SUBMITTING`: because there is no state field and no guard on the state
 
 Null check on repository: `repository.save(request)` with no null check on `repository`. If the controller is constructed without injecting a repository — as might happen in a unit test — this throws a `NullPointerException` rather than a meaningful error. **Fail.**
 
-<!-- → [TABLE: State machine audit for handleSubmit — rows mapping each specification clause to the output's behavior. Columns: Clause / Required behavior / Generated behavior / Pass or Fail / Root cause. Includes the state-tracking clause, SUBMITTING guard clause, no-op clause, and null-check clause.] -->
+| Clause | Required behavior | Generated behavior | Pass or Fail | Root cause |
+| --- | --- | --- | --- | --- |
+| State machine audit for handleSubmit | rows mapping each specification clause to the output's behavior. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 Four failures, all prompt omissions. The specification did not name the `SubmissionState` field type. It did not name that the guard must check the field, not the button's disabled status. It did not say that the null check on `repository` was required. These are the gaps that produce the failures.
 
@@ -206,7 +216,8 @@ Before accepting any AI-generated event handler, check four things in this order
 
 **Cross-component mutation.** Does the handler reach into a different controller or component and modify its state directly? If it does, the dependency is hidden and the invariant is unenforceable. The correct pattern is a callback, an event, or an observable property — something that makes the dependency explicit in the method signature.
 
-<!-- → [INFOGRAPHIC: Four-item audit checklist for event-driven handlers — each item as a labeled box with a one-sentence description, the failure it catches, and the handoff clause phrasing. Designed as a card the student posts next to the Boondoggle Score row for any handler they are auditing.] -->
+![Four-item audit checklist for event-driven handlers ](images/11-event-driven-specification-fig-05.png)
+*Figure 11.5 — Four-item audit checklist for event-driven handlers *
 
 These four checks do not replace the seven-clause handler contract from Chapter 8. They extend it. The handler contract names what the handler should do on the happy path. The four checks here name what happens when the path is not happy — when the event arrives in the wrong state, fires twice, or reaches outside its own component to borrow someone else's state.
 
@@ -312,3 +323,53 @@ For each discrepancy between the derived machine and the intended specification,
 ```
 
 After receiving the derivation, check: does the derived state machine correctly identify every state the handler can leave the component in? Does it name the no-op cases explicitly, or does it describe them as "returns without action" without naming the state? Revise any description that elides the state the component is in after the no-op.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 11.1 — Two diagrams side by side 
+
+Create a standalone D3 v7 HTML file for Figure Two diagrams side by side . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two diagrams side by side — left: a linear call stack with arrows flowing top to bottom labeled "Procedural: you control the sequence"; right: a state machine with multiple incoming event arrows at each node labeled "Event-driven: the sequence arrives from outside". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/11-event-driven-specification-fig-01.html`
+
+---
+
+### Figure 11.2 — State machine for the form submission feature 
+
+Create a standalone D3 v7 HTML file for Figure State machine for the form submission feature . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Annotated state machine for the form submission feature — four states (EMPTY, VALID, SUBMITTING, SUBMITTED) as labeled circles, with directed arrows for each named transition. No-op transitions shown as self-loops with "no action" labels. Guards shown as conditions on the relevant arrows. This is the visual equivalent of the full state machine specification table above.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/11-event-driven-specification-fig-02.html`
+
+---
+
+### Figure 11.3 — Two side-by-side sequence diagrams 
+
+Create a standalone D3 v7 HTML file for Figure Two side-by-side sequence diagrams . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two side-by-side sequence diagrams — left: single registration in initialize(), showing one handler call per click across three submissions; right: registration in refreshForm(), showing one call on first submission, two on second, three on third. Caption: "Registration count compounds silently.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/11-event-driven-specification-fig-03.html`
+
+---
+
+### Figure 11.4 — Two side-by-side object diagrams 
+
+Create a standalone D3 v7 HTML file for Figure Two side-by-side object diagrams . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two side-by-side object diagrams — left: "Wrong" — RequestFormController holds a reference to MainAppController, arrow labeled "statusLabel.setText()" pointing directly at MainAppController's internal field; right: "Correct" — RequestFormController holds a Consumer<MaintenanceRequest> callback, arrow labeled "onSubmitSuccess.accept(request)" pointing to MainAppController's own handler method. Caption: "The dependency is the same in both cases. In the wrong version it is hidden. In the correct version it is named.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/11-event-driven-specification-fig-04.html`
+
+---
+
+### Figure 11.5 — Four-item audit checklist for event-driven handlers 
+
+Create a standalone D3 v7 HTML file for Figure Four-item audit checklist for event-driven handlers . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Four-item audit checklist for event-driven handlers — each item as a labeled box with a one-sentence description, the failure it catches, and the handoff clause phrasing. Designed as a card the student posts next to the Boondoggle Score row for any handler they are auditing.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/11-event-driven-specification-fig-05.html`

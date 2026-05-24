@@ -15,7 +15,8 @@ This is the problem this chapter is about. Not JavaFX syntax. Not layout manager
 
 ## What a GUI Specification Actually Contains
 
-<!-- → [IMAGE: A wireframe sketch of a two-panel maintenance request form — left panel showing labeled fields (Name, Room, Description) and a Submit button, right panel showing a confirmation message. Pencil-sketch style, not polished UI. Caption: "The specification comes before the code. The sketch comes before the specification."] -->
+![The specification comes before the code. The sketch comes before the specification.](images/08-gui-as-user-need-specification-fig-01.png)
+*Figure 8.1 — A wireframe sketch of a two-panel maintenance request*
 
 Before you prompt AI for a single line of JavaFX, you need to know what you are specifying. A GUI specification is not a description of what the screen looks like. It is a translation of the user need into four things: controls, layout, events, and feedback.
 
@@ -27,7 +28,12 @@ Before you prompt AI for a single line of JavaFX, you need to know what you are 
 
 **Feedback** is what the user sees after an action. On successful submission: navigate to `Confirmation.fxml`, display a confirmation message. On validation failure: display an inline error message, do not navigate, leave the form editable. The specification names both the success path and the failure path — because a user who does not know what happened has not been served by the application.
 
-<!-- → [TABLE: GUI specification components — four rows, one per component type. Columns: Component / What it names / Why it belongs in the spec before prompting AI / What AI produces if it's missing. Rows: Controls / fx:id, type, purpose / AI can't register handlers without fx:id values / Unnamed controls AI invents, disconnected from the controller; Layout / Pane type and nesting / AI defaults to a pane that may resize incorrectly / VBox where GridPane was needed, or vice versa; Events / Source, type, handler name / AI may write handler logic without registering it / Dead handler: code exists, button does nothing; Feedback / Success path and failure path / AI omits the failure path unless specified / Validation logic that silently fails or throws] -->
+| Component | What it names | Why it belongs in the spec before prompting AI | What AI produces if it's missing |
+| --- | --- | --- | --- |
+| Controls | fx:id, type, purpose | AI can't register handlers without fx:id values | Unnamed controls AI invents, disconnected from the controller |
+| Layout | Pane type and nesting | AI defaults to a pane that may resize incorrectly | VBox where GridPane was needed, or vice versa |
+| Events | Source, type, handler name | AI may write handler logic without registering it | Dead handler: code exists, button does nothing |
+| Feedback | Success path and failure path | AI omits the failure path unless specified | Validation logic that silently fails or throws |
 
 When all four components are present, you have something that can be handed to AI as a prompt and audited against a checklist. When any one is missing, you have invited AI to make a structural choice you did not sanction — and structural choices in GUI code are much harder to fix after the fact than field visibility in a data class.
 
@@ -53,7 +59,8 @@ A handler contract has seven components:
 
 **Failure response.** What does the handler do when validation fails? Display an inline error label. Leave the form in its current state. Do not navigate. This is different from the success path and must be specified separately, because AI will often produce validation logic that silently returns or displays a console error the user cannot see.
 
-<!-- → [INFOGRAPHIC: Handler contract anatomy — seven labeled sections arranged around a central "handleSubmit" method signature. Each section shows the component name, a one-line definition, and the specific value for the maintenance request example. Designed as a reference card the student can apply to any handler.] -->
+![Handler contract anatomy ](images/08-gui-as-user-need-specification-fig-02.png)
+*Figure 8.2 — Handler contract anatomy *
 
 The seven-component handler contract is to event-driven programming what the seven-component class contract from Chapter 5 is to object-oriented programming. Both exist for the same reason: to make the obligations of a piece of code explicit before it is written, so that the generated output can be audited against something real.
 
@@ -75,7 +82,11 @@ This failure is harder to spot than missing registration, because the applicatio
 
 This failure is the hardest to catch without a specific handoff clause, because the hardcoded values look fine in isolation. The audit catches it only if the handoff condition explicitly names the parameterization requirements: *no hardcoded window dimensions; error message strings drawn from a resource bundle or constant; repository accessed through an interface, not instantiated directly.*
 
-<!-- → [TABLE: Three generation failures — three rows, one per failure. Columns: Failure name / What the output contains / What the specification gap was / Handoff clause that catches it. Rows: Missing handler registration / Handler method exists, button does nothing / Registration method not specified / "Button onAction attribute or initialize() registration present"; Wrong layout pane / VBox where GridPane required / Pane type not named in spec / "Root pane type matches specification"; Hardcoded values / Literal strings and dimensions in code / Parameterization not specified / "No hardcoded values for [named items]"] -->
+| Failure name | What the output contains | What the specification gap was | Handoff clause that catches it |
+| --- | --- | --- | --- |
+| Missing handler registration | Handler method exists, button does nothing | Registration method not specified | "Button onAction attribute or initialize() registration present" |
+| Wrong layout pane | VBox where GridPane required | Pane type not named in spec | "Root pane type matches specification" |
+| Hardcoded values | Literal strings and dimensions in code | Parameterization not specified | "No hardcoded values for [named items]" |
 
 The three failures have a common structure: AI produces something that satisfies a weaker version of the specification. The handler logic satisfies "write a method that validates input" but not "wire the button to the handler." The layout satisfies "arrange these controls" but not "arrange them in a GridPane that preserves column alignment on resize." The hardcoded values satisfy "the application runs" but not "the application is parameterizable."
 
@@ -87,7 +98,8 @@ Each gap traces back to a missing specification clause. The audit finds it. The 
 
 A two-screen application has a dependency structure that the Boondoggle Score makes explicit: you cannot audit the confirmation screen until the form screen's submission behavior has been verified, because the confirmation screen is only reachable through a successful submission.
 
-<!-- → [DIAGRAM: Dependency chain for two-screen application — three nodes: "RequestForm.fxml scaffold" → "handleSubmit handler" → "Confirmation.fxml scaffold + navigation." Arrows labeled with handoff conditions. Each node annotated with the supervisory capacity exercised at that handoff.] -->
+![Dependency chain for two-screen application ](images/08-gui-as-user-need-specification-fig-03.png)
+*Figure 8.3 — Dependency chain for two-screen application *
 
 The score for this application has at minimum three rows.
 
@@ -97,7 +109,9 @@ The score for this application has at minimum three rows.
 
 **Row 3.** AI task: generate `Confirmation.fxml` with the specified confirmation message and a return button. Human task: verify that the navigation from `handleSubmit` loads `Confirmation.fxml` correctly, and that the return button navigates back to `RequestForm.fxml` with a cleared form. Handoff condition: navigation loads the correct FXML file; return button is registered; form fields are cleared on return. Evidence: execution trace through both navigation paths. Supervisory capacity: Tool Orchestration.
 
-<!-- → [TABLE: Three-row Boondoggle Score for the maintenance request application — columns: Row / AI Task / Human Task / Handoff Condition / Evidence / Supervisory Capacity. Row 1: RequestForm.fxml scaffold; Row 2: RequestFormController with handleSubmit; Row 3: Confirmation.fxml + navigation. Dependency arrows between rows shown below the table to make the chain visible.] -->
+| Row | AI Task | Human Task | Handoff Condition | Evidence |
+| --- | --- | --- | --- | --- |
+| to make the chain visible. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 Row 3 depends on Row 2 passing. Row 2 depends on Row 1 passing. The dependency is not bureaucratic — it reflects a real structural fact about the application. If the FXML `fx:id` values do not match the controller's field declarations, the controller cannot compile. If the handler is not wired, Row 2's audit is meaningless. The score makes this sequence explicit so that a failure in Row 1 is caught before it corrupts Row 2.
 
@@ -154,7 +168,9 @@ Failure response: no navigation on failure. **Pass.** But no visible feedback to
 
 Three passes, three fails, one pending. The handler contract fails on `@FXML` annotation, navigation implementation, and visible failure feedback. All three are prompt omissions — the specification did not say to use `@FXML`, did not name the FXML file for navigation, and did not specify that the failure response must be visible in the UI rather than logged to the console.
 
-<!-- → [TABLE: Handler contract audit for handleSubmit — seven rows, one per clause. Columns: Clause / Expected / Found in output / Pass or Fail / Root cause. Mirrors the clause-by-clause analysis above.] -->
+| Clause | Expected | Found in output | Pass or Fail | Root cause |
+| --- | --- | --- | --- | --- |
+| Handler contract audit for handleSubmit | seven rows, one per clause. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 The student records the three failures, identifies them as prompt omissions, and revises the prompt to add: `@FXML` annotations required on all injected fields and the handler method; navigation implemented using `FXMLLoader` to load `Confirmation.fxml`; validation failure response sets `errorLabel.setVisible(true)` with a descriptive message string.
 
@@ -174,7 +190,8 @@ This is what Donald Norman called the "gulf of execution" — the distance betwe
 
 The GUI specification is not describing cosmetics. It is closing the gulf of execution. And closing the gulf is part of the requirement, not an afterthought to it.
 
-<!-- → [INFOGRAPHIC: Gulf of execution diagram — two rows. Top row: command-line interface, user need to execution path shown as a long arrow with multiple unlabeled steps. Bottom row: JavaFX form, same user need to execution path shown as a short arrow with labeled, visible steps. Labels: "What the user wants to do" on the left, "Actions the system makes available" on the right. The gap between them is the gulf.] -->
+![Gulf of execution diagram ](images/08-gui-as-user-need-specification-fig-04.png)
+*Figure 8.4 — Gulf of execution diagram *
 
 When you write the GUI specification — naming the controls, the layout, the handlers, the feedback — you are making design decisions about the size of that gulf. A `submitButton` with a handler that provides visible confirmation closes the gulf. A `submitButton` with a handler that logs to the console and silently returns opens it. The specification has to name which one you are building.
 
@@ -271,3 +288,45 @@ Generate a three-row Boondoggle Score for this application. Each row must includ
 ```
 
 After receiving the generated score and audit, check: are the handoff conditions actually binary? Does each row's supervisory capacity label match the kind of judgment the human task requires? Revise any row where the answer is no.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 8.1 — A wireframe sketch of a two-panel maintenance request
+
+Create a standalone D3 v7 HTML file for Figure A wireframe sketch of a two-panel maintenance request. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A wireframe sketch of a two-panel maintenance request form — left panel showing labeled fields (Name, Room, Description) and a Submit button, right panel showing a confirmation message. Pencil-sketch style, not polished UI. Caption: "The specification comes before the code. The sketch comes before the specification.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/08-gui-as-user-need-specification-fig-01.html`
+
+---
+
+### Figure 8.2 — Handler contract anatomy 
+
+Create a standalone D3 v7 HTML file for Figure Handler contract anatomy . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Handler contract anatomy — seven labeled sections arranged around a central "handleSubmit" method signature. Each section shows the component name, a one-line definition, and the specific value for the maintenance request example. Designed as a reference card the student can apply to any handler.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/08-gui-as-user-need-specification-fig-02.html`
+
+---
+
+### Figure 8.3 — Dependency chain for two-screen application 
+
+Create a standalone D3 v7 HTML file for Figure Dependency chain for two-screen application . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Dependency chain for two-screen application — three nodes: "RequestForm.fxml scaffold" → "handleSubmit handler" → "Confirmation.fxml scaffold + navigation." Arrows labeled with handoff conditions. Each node annotated with the supervisory capacity exercised at that handoff.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/08-gui-as-user-need-specification-fig-03.html`
+
+---
+
+### Figure 8.4 — Gulf of execution diagram 
+
+Create a standalone D3 v7 HTML file for Figure Gulf of execution diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Gulf of execution diagram — two rows. Top row: command-line interface, user need to execution path shown as a long arrow with multiple unlabeled steps. Bottom row: JavaFX form, same user need to execution path shown as a short arrow with labeled, visible steps. Labels: "What the user wants to do" on the left, "Actions the system makes available" on the right. The gap between them is the gulf.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/08-gui-as-user-need-specification-fig-04.html`

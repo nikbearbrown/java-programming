@@ -11,7 +11,9 @@ The task manager I show in lecture can add tasks, list them, and mark them done.
 
 This is not a story about AI failure. The AI did exactly what it was asked to do. The problem is that nobody asked it to do the right thing.
 
-<!-- → [TABLE: The task manager's three specification violations — columns: Requirement (from spec), What the app does, Violation type. Row 1: Completed tasks remain visible for audit / Completed tasks disappear / Omitted constraint. Row 2: Priorities sort high to low / No sort order enforced / Omitted constraint. Row 3: Deleted tasks recoverable until session ends / Deletion is permanent / Omitted constraint. Caption: "Every violation was present in the app that 'looked finished.'"] -->
+| Requirement (from spec) | What the app does | Violation type |
+| --- | --- | --- |
+| The task manager's three specification violations — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -27,7 +29,8 @@ The first job is delegation. The second job is yours.
 
 I'll call the person who holds the second job the conductor. Not because it's a glamorous metaphor, but because it's accurate. A conductor does not play every instrument. A conductor decides what the music is supposed to sound like, listens for when it doesn't, and stops the performance when something is wrong.
 
-<!-- → [IMAGE: A simple two-column diagram — left column labeled "AI's job" with bullets: generate code, fill syntax, produce structure; right column labeled "Yours" with bullets: define obligations, write handoff conditions, audit output. Clean, no decoration.] -->
+![A simple two-column diagram ](images/03-the-conductors-frame-fig-01.png)
+*Figure 3.1 — A simple two-column diagram *
 
 ---
 
@@ -49,7 +52,13 @@ Here is what a specification looks like:
 
 The second prompt is longer. It takes more thought to write. That is not a flaw — it is the point. The work of thinking through the specification happens before the AI generates the artifact, which is exactly where it should happen. If you discover what you needed after the code is already written, you have delegated the wrong job.
 
-<!-- → [TABLE: Two-column comparison — Description vs. Specification. Row 1: "Write a greeting app" vs. "Class named GreetingApp, main method, exact output 'Hello, Dilnoza', no packages or GUI." Row 2: "Build a task manager" vs. "Tasks must remain visible after completion; priorities sort high to low; deletions recoverable within session." Row 3: "Generate input handling" vs. "Accept one command-line argument; reject input longer than 50 characters with a specific error message; no Scanner, no GUI."] -->
+| Item | Meaning |
+| --- | --- |
+| Two-column comparison | Description vs. Specification. Row 1: "Write a greeting app" vs. "Class named GreetingApp, main method, exact output 'Hello, Dilnoza', no packages or GUI." Row 2: "Build a task manager" vs. "Tasks must remain visible after completion |
+| priorities sort high to low | A concrete checkpoint for applying the chapter concept. |
+| deletions recoverable within session." Row 3: "Generate input handling" vs. "Accept one command-line argument | A concrete checkpoint for applying the chapter concept. |
+| reject input longer than 50 characters with a specific error message | The pattern becomes easy to misuse or overlook. |
+| no Scanner, no GUI." | A concrete checkpoint for applying the chapter concept. |
 
 Notice what the specification does that the description doesn't. It names the Java element that carries the promise — the class, the method, the exact string. It lists the things AI must *not* do, which is often more important than listing the things it should. And it creates conditions that can pass or fail by inspection, before the code ever runs.
 
@@ -73,7 +82,8 @@ The reason I insist on inspectability is practical, not philosophical. When some
 
 Systems that can't be debugged can't be improved. Inspectable conditions are how you keep the system debuggable.
 
-<!-- → [INFOGRAPHIC: A simple chain diagram — Specification → AI Output → Human Audit (Handoff Condition) → Accept/Reject → Next Component. Add a branch from "Reject" back to "Specification" labeled "Revise prompt." Caption: "Every delegation has an acceptance condition. Every acceptance condition has evidence."] -->
+![Every delegation has an acceptance condition. Every acceptance condition has evidence.](images/03-the-conductors-frame-fig-02.png)
+*Figure 3.2 — A simple chain diagram *
 
 ---
 
@@ -106,7 +116,9 @@ The output is acceptable if and only if:
 
 My job is to verify each condition by reading the code. I will not assume a property I haven't checked. I will not accept the method because it "looks right."
 
-<!-- → [TABLE: Boondoggle Score excerpt — columns: AI Task, Human Task, Handoff Condition, Evidence, Supervisory Capacity. One completed row for isPrime: AI generates method body. Human verifies signature, edge cases, absence of I/O. Handoff condition: all five conditions pass by inspection. Evidence: code review notes. Supervisory capacity: Plausibility Auditing.] -->
+| AI Task | Human Task | Handoff Condition | Evidence | Supervisory Capacity |
+| --- | --- | --- | --- | --- |
+| Boondoggle Score excerpt — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 This is what I mean by the conductor's frame. The analysis happens before the generation, not after. The conditions are written down. The evidence is explicit. The human audit has a defined scope — not "look it over" but "verify these five specific things."
 
@@ -122,7 +134,8 @@ There are three ways a handoff can fail, and they require different responses.
 
 **Human acceptance failure.** The specification was complete, the AI satisfied it, and the human accepted output that failed inspection. This is the hardest failure to recover from, because it means the audit step broke down. The response is to understand why — was the handoff condition ambiguous? Was the inspection rushed? Was the evidence not examined carefully enough? — and to make the condition more concrete before the next delegation.
 
-<!-- → [INFOGRAPHIC: Three-way decision tree — "Handoff failed. Why?" Branch 1: "Constraint wasn't in the prompt" → Revise prompt. Branch 2: "AI violated the prompt" → Regenerate with clearer constraint. Branch 3: "Human accepted failing output" → Make handoff condition more concrete.] -->
+![Three-way decision tree ](images/03-the-conductors-frame-fig-03.png)
+*Figure 3.3 — Three-way decision tree *
 
 The distinction matters because the fix is different in each case. Students who treat all three as "AI made a mistake" end up with a patching habit rather than a specification habit. Patching is slower, less reliable, and doesn't transfer to the next component.
 
@@ -146,7 +159,9 @@ The same principle extends to execution. Running the program and seeing output t
 
 Verification requires checking actual conditions against actual code or actual output. Not running the program and hoping for the best.
 
-<!-- → [TABLE: What each verification method actually checks — columns: Method, What it verifies, What it does NOT verify. Row 1: Compilation / Syntax legality, type consistency / Behavioral correctness, output matching specification. Row 2: Execution (running the program) / Program terminates, produces some output / Whether output satisfies specification clauses. Row 3: Inspection against handoff conditions / Each stated condition passes or fails / Properties not listed in the handoff condition. Caption: "Three verification methods, three different scopes. None substitutes for the others."] -->
+| Method | What it verifies | What it does NOT verify |
+| --- | --- | --- |
+| What each verification method actually checks — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -178,7 +193,9 @@ Each entry has five fields:
 | **Evidence** | The exact code, prompt clause, or inspection note that proves the handoff passed |
 | **Supervisory capacity** | Which of the five human capacities the task exercises |
 
-<!-- → [TABLE: Full Boondoggle Score template with all five columns labeled, one blank row and one example row filled in (greeting app). Example: AI task — generate GreetingApp class. Human task — verify class name, method signature, exact output string, absence of forbidden additions. Handoff condition — all four inspection criteria pass. Evidence — inspection checklist dated and initialed. Supervisory capacity — Plausibility Auditing.] -->
+| Item | Meaning |
+| --- | --- |
+| Full Boondoggle Score template with all five columns labeled, one blank row and one example row filled in (greeting app). Example: AI task | generate GreetingApp class. Human task |
 
 The five supervisory capacities are:
 
@@ -188,7 +205,8 @@ The five supervisory capacities are:
 - **Interpretive Judgment** — Deciding what a failure means and how to respond to it
 - **Executive Integration** — Assembling components into a system and verifying the system as a whole
 
-<!-- → [INFOGRAPHIC: Five-tier vertical stack or wheel — one cell per supervisory capacity, labeled with name and one-line description. Color-code or shade to show the progression from upstream (Problem Formulation) to downstream (Executive Integration). Caption: "Every delegation exercises at least one. The Boondoggle Score tracks which ones you're actually using."] -->
+![Every delegation exercises at least one. The Boondoggle Score tracks which ones you're actually using.](images/03-the-conductors-frame-fig-04.png)
+*Figure 3.4 — Five-tier vertical stack or wheel *
 
 Every delegation in this course exercises at least one of these capacities. The Boondoggle Score is how you track which ones you are actually using and which ones you are skipping.
 
@@ -208,7 +226,9 @@ That is the conductor's frame. You are not the fastest code producer in the room
 
 AI makes the first job faster. It makes the second job more important. The course is about the second job.
 
-<!-- → [TABLE: Coverage-first course vs. this course — columns: Dimension, Coverage-first, Conductor-frame. Row 1: Measure of progress / Syntax encountered / System accounted for. Row 2: Success condition / Syllabus covered / Every delegation has evidence. Row 3: Student role / Code author / Specification owner and auditor. Row 4: AI's role / Not present / Executor of delegated work orders. Caption: "The shift is not about writing less code. It's about being responsible for all of it."] -->
+| Dimension | Coverage-first | Conductor-frame |
+| --- | --- | --- |
+| Coverage-first course vs. this course — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -221,3 +241,45 @@ AI makes the first job faster. It makes the second job more important. The cours
 3. **Boondoggle Score entry.** Add one complete Boondoggle Score entry for the `isPrime` method worked through in this chapter. All five fields must be filled. The evidence field must name a specific line or condition you checked by inspection — not a general description of the review.
 
 4. **Specification stress test.** Take the conductor-style prompt you wrote in Exercise 1 and deliberately introduce one omission — remove a constraint that matters. Explain what class of AI output the omission now permits. This is the habit of working backward from failure modes: if I removed this constraint, what would I have to accept?
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 3.1 — A simple two-column diagram 
+
+Create a standalone D3 v7 HTML file for Figure A simple two-column diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A simple two-column diagram — left column labeled "AI's job" with bullets: generate code, fill syntax, produce structure; right column labeled "Yours" with bullets: define obligations, write handoff conditions, audit output. Clean, no decoration.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/03-the-conductors-frame-fig-01.html`
+
+---
+
+### Figure 3.2 — A simple chain diagram 
+
+Create a standalone D3 v7 HTML file for Figure A simple chain diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A simple chain diagram — Specification → AI Output → Human Audit (Handoff Condition) → Accept/Reject → Next Component. Add a branch from "Reject" back to "Specification" labeled "Revise prompt." Caption: "Every delegation has an acceptance condition. Every acceptance condition has evidence.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/03-the-conductors-frame-fig-02.html`
+
+---
+
+### Figure 3.3 — Three-way decision tree 
+
+Create a standalone D3 v7 HTML file for Figure Three-way decision tree . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Three-way decision tree — "Handoff failed. Why?" Branch 1: "Constraint wasn't in the prompt" → Revise prompt. Branch 2: "AI violated the prompt" → Regenerate with clearer constraint. Branch 3: "Human accepted failing output" → Make handoff condition more concrete.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/03-the-conductors-frame-fig-03.html`
+
+---
+
+### Figure 3.4 — Five-tier vertical stack or wheel 
+
+Create a standalone D3 v7 HTML file for Figure Five-tier vertical stack or wheel . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Five-tier vertical stack or wheel — one cell per supervisory capacity, labeled with name and one-line description. Color-code or shade to show the progression from upstream (Problem Formulation) to downstream (Executive Integration). Caption: "Every delegation exercises at least one. The Boondoggle Score tracks which ones you're actually using.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/03-the-conductors-frame-fig-04.html`

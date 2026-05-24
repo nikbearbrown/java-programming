@@ -23,7 +23,8 @@ That is the opening problem of this chapter. Not "AI wrote bad code." The code i
 
 ## A Class Is a Boundary, Not a Folder
 
-<!-- → [IMAGE: A locked filing cabinet next to an open cardboard box — both contain folders, but one enforces access, the other doesn't. Caption: "Same contents. Different guarantees."] -->
+![Same contents. Different guarantees.](images/05-objects-as-specifications-fig-01.png)
+*Figure 5.1 — A locked filing cabinet next to an open*
 
 Let me tell you what a class actually is, because the word gets used loosely and the looseness costs you later.
 
@@ -67,7 +68,12 @@ public class Task {
 
 Now look at what changed. The fields are `private` — no external code can touch them directly. The constructor *rejects* an invalid `Task` before it can exist. `markComplete()` is the only path to changing completion state. The class now has opinions. It enforces them.
 
-<!-- → [TABLE: Two-column comparison — "Public fields version" vs. "Encapsulated version" — rows: Who can change title / Anyone vs. No one after construction; Who can set invalid priority / Anyone vs. No one (constructor rejects it); How does completion change / Direct assignment anywhere vs. Only through markComplete(); What happens if priority = -9 is attempted / Silently accepted vs. IllegalArgumentException thrown at construction] -->
+| Item | Meaning |
+| --- | --- |
+| Who can change title | Anyone vs. No one after construction |
+| Who can set invalid priority | Anyone vs. No one (constructor rejects it |
+| How does completion change | Direct assignment anywhere vs. Only through markComplete( |
+| What happens if priority = -9 is attempted | Silently accepted vs. IllegalArgumentException thrown at construction |
 
 This is not a stylistic choice. It is a specification choice. The encapsulated version *implements a contract*. The public-fields version does not.
 
@@ -93,7 +99,8 @@ A full class contract has seven components. When you are writing a specification
 
 **Forbidden shared state.** Should any field be `static`? For `Task`: no. If `completedCount` were static, every `Task` instance would share a single completion counter — one instance's behavior affects all instances. Static state belongs to the class; instance state belongs to one object. The choice has behavioral consequences that do not show up in a quick test.
 
-<!-- → [INFOGRAPHIC: Seven-component contract diagram — each component as a labeled box with a one-line definition and a small example drawn from Task. Arranged in a logical reading order: Responsibility → Fields → Visibility → Constructor → Methods → Invariants → Shared State.] -->
+![Seven-component contract diagram ](images/05-objects-as-specifications-fig-02.png)
+*Figure 5.2 — Seven-component contract diagram *
 
 When you have all seven, you have something you can hand to AI as a prompt and evaluate the output against. When you are missing any one of them, you have an invitation for the AI to make a choice you did not sanction.
 
@@ -109,7 +116,8 @@ This is not a failure of the model. It is a failure of the prompt. The model did
 
 The audit question is always: *did the output satisfy the specification, or did it produce something that satisfies a weaker specification I did not intend?* When the fields are public and you specified nothing about visibility, the answer is that the model filled the gap with a default. The default may or may not be what you wanted. You cannot know until you check — which means you have to have something to check against.
 
-<!-- → [DIAGRAM: Two overlapping regions — "Specification you wrote" and "Implementation you received" — with the gap between them labeled "where bugs live." Three example gap types annotated on the boundary: prompt omission (you didn't say it), model default (model chose a common pattern), emergent violation (nothing in the prompt forbade it). Simple Venn-style layout, not decorative.] -->
+![Two overlapping regions ](images/05-objects-as-specifications-fig-03.png)
+*Figure 5.3 — Two overlapping regions *
 
 This is why the Boondoggle Score requires the handoff condition to be written *before* the output arrives. A handoff condition for the `Task` class might read: *all three fields are private; the constructor throws on blank title and out-of-range priority; `markComplete()` is the only method that changes `completed`; no static fields are present.* That condition either passes or it does not. The AI-generated code with public fields fails it immediately on the first clause.
 
@@ -119,7 +127,8 @@ If you write the condition after you see the output, you will write one the outp
 
 ## Instance vs. Static: A Concrete Mistake
 
-<!-- → [IMAGE: Two whiteboards side by side — one shows a single Task object with its own completedCount, the other shows three Task objects all pointing to the same completedCount counter — illustrating instance vs. static state visually] -->
+![Two whiteboards side by side ](images/05-objects-as-specifications-fig-04.png)
+*Figure 5.4 — Two whiteboards side by side *
 
 Let me show you a specific failure mode that the instance/static distinction produces, because it is the kind of bug that is genuinely hard to diagnose if you do not know to look for it.
 
@@ -201,7 +210,9 @@ Clause 5: no `static` fields? **Pass.** No static fields present.
 
 One pass out of five. The output is rejected. The student records the failures, identifies which ones are prompt omissions — she did not specify field visibility, constructor parameters, or forbidden setter methods — and revises the prompt.
 
-<!-- → [TABLE: Audit checklist — five rows, one per clause. Columns: Clause / What the contract requires / What the output contains / Pass or Fail / Root cause (prompt omission vs. model failure)] -->
+| Clause | What the contract requires | What the output contains | Pass or Fail | Root cause (prompt omission vs |
+| --- | --- | --- | --- | --- |
+| Audit checklist | five rows, one per clause. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 This is the discipline. Not "does this look right" but "does this satisfy each clause of the specification I wrote before seeing the output." The difference between those two questions is the difference between acceptance and rationalization.
 
@@ -221,7 +232,8 @@ Meyer formalized this as Design by Contract in 1997: every class has preconditio
 
 When you write a class contract before prompting AI, you are doing what Meyer described: making the obligations of the class explicit before implementing it. The AI implements. You verify. The contract is what makes the verification possible.
 
-<!-- → [INFOGRAPHIC: Timeline of the idea — Parnas (1972): information hiding; Meyer (1997): Design by Contract; Java SE (generalized visibility and constructor enforcement): the language mechanism; Boondoggle Score: the audit method. Each node connected by an arrow, showing that the idea predates Java and predates AI.] -->
+![Timeline of the idea ](images/05-objects-as-specifications-fig-05.png)
+*Figure 5.5 — Timeline of the idea *
 
 ---
 
@@ -237,7 +249,9 @@ Here is a prompt derived from the full contract:
 
 > Write a Java class named `Task`. Responsibility: owns its title, priority, and completion state and enforces that none can be in an invalid configuration. Fields: `title` (String, private), `priority` (int, private), `completed` (boolean, private). Constructor: takes `String title` and `int priority`; throws `IllegalArgumentException` with a descriptive message if title is null or blank; throws `IllegalArgumentException` if priority is not between 1 and 5 inclusive; sets `completed` to false. Methods: `markComplete()` (void, sets `completed` to true, no parameters); `getTitle()` (returns String); `getPriority()` (returns int); `isCompleted()` (returns boolean). No static fields. No additional methods. No setters.
 
-<!-- → [TABLE: Side-by-side prompt comparison — left column: weak prompt text annotated to show what each missing clause leaves unspecified (visibility → gap, constructor → gap, invariants → gap); right column: strong prompt text annotated to show which contract component each clause satisfies. Purpose: student sees the structural correspondence between a contract and a prompt.] -->
+| weak prompt text annotated to show what each missing clause leaves unspecified (visibility → gap | constructor → gap | invariants → gap) |
+| --- | --- | --- |
+| Side-by-side prompt comparison | left | A concrete checkpoint for applying the chapter concept. |
 
 Both prompts are short. The second one takes about three minutes to write. The second one produces a class you can audit against a checklist. The first one produces a class that might or might not satisfy any given requirement, depending on what defaults the model applies.
 
@@ -338,3 +352,53 @@ Explain the behavioral consequence of each static field in this class. For each 
 ```
 
 After receiving the generated analysis, audit it: does it correctly distinguish behavioral consequences from style preferences? Does it show a concrete example for each claim? Revise any explanation that stays at the level of "static is shared" without showing what that sharing produces.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 5.1 — A locked filing cabinet next to an open
+
+Create a standalone D3 v7 HTML file for Figure A locked filing cabinet next to an open. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A locked filing cabinet next to an open cardboard box — both contain folders, but one enforces access, the other doesn't. Caption: "Same contents. Different guarantees.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/05-objects-as-specifications-fig-01.html`
+
+---
+
+### Figure 5.2 — Seven-component contract diagram 
+
+Create a standalone D3 v7 HTML file for Figure Seven-component contract diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Seven-component contract diagram — each component as a labeled box with a one-line definition and a small example drawn from Task. Arranged in a logical reading order: Responsibility → Fields → Visibility → Constructor → Methods → Invariants → Shared State.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/05-objects-as-specifications-fig-02.html`
+
+---
+
+### Figure 5.3 — Two overlapping regions 
+
+Create a standalone D3 v7 HTML file for Figure Two overlapping regions . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two overlapping regions — "Specification you wrote" and "Implementation you received" — with the gap between them labeled "where bugs live." Three example gap types annotated on the boundary: prompt omission (you didn't say it), model default (model chose a common pattern), emergent violation (nothing in the prompt forbade it). Simple Venn-style layout, not decorative.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/05-objects-as-specifications-fig-03.html`
+
+---
+
+### Figure 5.4 — Two whiteboards side by side 
+
+Create a standalone D3 v7 HTML file for Figure Two whiteboards side by side . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two whiteboards side by side — one shows a single Task object with its own completedCount, the other shows three Task objects all pointing to the same completedCount counter — illustrating instance vs. static state visually. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/05-objects-as-specifications-fig-04.html`
+
+---
+
+### Figure 5.5 — Timeline of the idea 
+
+Create a standalone D3 v7 HTML file for Figure Timeline of the idea . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Timeline of the idea — Parnas (1972): information hiding; Meyer (1997): Design by Contract; Java SE (generalized visibility and constructor enforcement): the language mechanism; Boondoggle Score: the audit method. Each node connected by an arrow, showing that the idea predates Java and predates AI.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/05-objects-as-specifications-fig-05.html`

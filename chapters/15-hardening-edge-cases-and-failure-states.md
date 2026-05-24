@@ -15,7 +15,8 @@ This is the subject of this chapter: failure states that the specification never
 
 ## What a Failure State Is
 
-<!-- → [IMAGE: A contract document with a "Normal Operation" section fully written out and a "Failure Conditions" section that is blank — the heading is there, the lines are there, but nothing is written. Caption: "The failure section was never filled in."] -->
+![The failure section was never filled in.](images/15-hardening-edge-cases-and-failure-states-fig-01.png)
+*Figure 15.1 — A contract document with a "Normal Operation" section*
 
 A failure state is a condition under which a component cannot satisfy its normal contract.
 
@@ -64,7 +65,12 @@ public void saveRequest(MaintenanceRequest request) throws IOException {
 
 The difference between these two implementations is one word in the specification: *propagate*. The specification that produced the first version said "handle `IOException`." The specification that produces the second version says "if writing fails, propagate `IOException` to the caller and do not report success." One additional clause. One completely different failure behavior.
 
-<!-- → [TABLE: Failure state response patterns — four rows. Columns: Pattern / What the code does / When it is correct / When it is wrong. Rows: Swallow silently / catches exception, returns normally / never correct for persistence / caller believes success, data not written; Log and return / catches exception, logs, returns normally / when caller expects graceful degradation / when caller needs to know the operation failed; Propagate / catches exception, re-throws or wraps / when caller must handle the failure / when the caller has no meaningful recovery path; Log and propagate / catches, logs, re-throws / almost always the right answer for persistence / never wrong, sometimes redundant] -->
+| Pattern | What the code does | When it is correct | When it is wrong |
+| --- | --- | --- | --- |
+| Swallow silently | catches exception, returns normally | never correct for persistence | caller believes success, data not written |
+| Log and return | catches exception, logs, returns normally | when caller expects graceful degradation | when caller needs to know the operation failed |
+| Propagate | catches exception, re-throws or wraps | when caller must handle the failure | when the caller has no meaningful recovery path |
+| Log and propagate | catches, logs, re-throws | almost always the right answer for persistence | never wrong, sometimes redundant |
 
 ---
 
@@ -80,7 +86,8 @@ That is seven failure states for a method that, in the specification, was descri
 
 The enumeration is not about imagining every possible disaster. It is about naming the failure states that are *predictable*. A partial write on a full disk is predictable. A null request is predictable — someone, someday, will pass null. Missing permissions are predictable — the application may be deployed with the wrong file system permissions. These are not exotic edge cases. They are the standard operating environment of software running in the world.
 
-<!-- → [DIAGRAM: A method box labeled "saveRequest()" at the center, with incoming arrows labeled by failure source: "caller" (null input, wrong types), "file system" (permissions, path, disk full, partial write), "concurrency" (race conditions), "timing" (timeout). Each arrow ends at the method boundary. Caption: "Failure arrives from every direction. The specification names which directions the method must handle."] -->
+![Failure arrives from every direction. The specification names which directions the method must handle.](images/15-hardening-edge-cases-and-failure-states-fig-02.png)
+*Figure 15.2 — A method box labeled "saveRequest()" at the center,*
 
 The list does not have to be exhaustive on the first pass. It has to be complete enough to identify the Must-Fix states — the failures that will produce data loss, incorrect behavior, or security violations if unhandled.
 
@@ -98,7 +105,11 @@ The triage labels are three:
 
 **Nice-to-Have** means the failure state is unlikely in the current deployment context, its consequence is acceptable, and handling it would add complexity without proportionate benefit. Concurrent modification on a single-user desktop application is often Nice-to-Have. Handling extremely long file paths that exceed OS limits on a system where paths are generated programmatically and bounded is often Nice-to-Have. These are recorded and dismissed, with the reasoning written down.
 
-<!-- → [TABLE: Triage classification — three rows. Columns: Label / Risk condition / Examples from file persistence / What goes in the prompt. Rows: Must-Fix / Data loss, incorrect behavior, security violation, or user-visible lie / Swallowed IOException, null request, success message after failed write / Explicit failure response added to the current prompt revision; Important for v2 / Real consequence, outside current scope, deferral does not produce incorrect current behavior / Retry on transient failure, timeout handling, disk-full recovery / Written deferral note in Boondoggle Score with justification; Nice-to-Have / Unlikely in current context, acceptable consequence, complexity exceeds benefit / Concurrent modification on single-user system, path length edge cases / Recorded and dismissed with reasoning] -->
+| Label | Risk condition | Examples from file persistence | What goes in the prompt |
+| --- | --- | --- | --- |
+| Must-Fix | Data loss, incorrect behavior, security violation, or user-visible lie | Swallowed IOException, null request, success message after failed write | Explicit failure response added to the current prompt revision |
+| Important for v2 | Real consequence, outside current scope, deferral does not produce incorrect current behavior | Retry on transient failure, timeout handling, disk-full recovery | Written deferral note in Boondoggle Score with justification |
+| Nice-to-Have | Unlikely in current context, acceptable consequence, complexity exceeds benefit | Concurrent modification on single-user system, path length edge cases | Recorded and dismissed with reasoning |
 
 The triage step is an interpretive judgment. It requires knowing the deployment context, the user population, and the consequence of each failure in practice. AI cannot make this judgment because it does not have that context. This is the work that belongs to the conductor.
 
@@ -135,7 +146,8 @@ public void saveRequest(MaintenanceRequest request) throws IOException {
 
 Three lines added: null check at the top, log in the catch block, re-throw in the catch block. The method now handles the two Must-Fix states (null input and swallowed IOException) without adding retry logic, telemetry, or any other feature. The scope is unchanged. The hardening is complete for this iteration.
 
-<!-- → [IMAGE: Annotated diff of saveRequest — left column shows the original unspecified version with the empty catch block highlighted in red; right column shows the hardened version with three added lines highlighted in green and each annotated with the Must-Fix state it addresses: "null check → Must-Fix: null input", "logger.error → Must-Fix: swallowed exception (log)", "throw e → Must-Fix: swallowed exception (propagate)". Caption: "Three clauses in the specification. Three lines in the implementation. Scope unchanged."] -->
+![Three clauses in the specification. Three lines in the implementation. Scope unchanged.](images/15-hardening-edge-cases-and-failure-states-fig-03.png)
+*Figure 15.3 — Diff of saveRequest *
 
 ---
 
@@ -149,7 +161,12 @@ Triage: null input is Must-Fix — a `NullPointerException` at `repository.write
 
 The revised prompt: *Write `saveRequest(MaintenanceRequest request)`. If `request` is null, throw `IllegalArgumentException` with a descriptive message. If `repository.write()` throws `IOException`, log the error with the request ID and re-throw the exception — do not return normally after a failed write, and do not swallow the exception silently.*
 
-<!-- → [TABLE: Failure state triage for saveRequest — four rows, one per identified state. Columns: Failure state / Condition / Triage label / Justification / Prompt revision required. Rows: Null input / request == null / Must-Fix / NullPointerException crashes silently / throw IllegalArgumentException; Swallowed exception / catch block empty / Must-Fix / user sees success, data not written / log and re-throw; Invalid path / repository path misconfigured / Important for v2 / requires startup validation, not method-level fix / deferral note in Boondoggle Score; Partial write / disk full during write / Nice-to-Have / repository library handles atomicity / recorded and dismissed] -->
+| Failure state | Condition | Triage label | Justification | Prompt revision required |
+| --- | --- | --- | --- | --- |
+| Null input | request == null | Must-Fix | NullPointerException crashes silently | throw IllegalArgumentException |
+| Swallowed exception | catch block empty | Must-Fix | user sees success, data not written | log and re-throw |
+| Invalid path | repository path misconfigured | Important for v2 | requires startup validation, not method-level fix | deferral note in Boondoggle Score |
+| Partial write | disk full during write | Nice-to-Have | repository library handles atomicity | recorded and dismissed |
 
 AI generates the revised implementation correctly when the prompt names these two Must-Fix states explicitly. When the prompt says only "handle `IOException`," it generates the empty catch block. The difference is the triage step that identifies which failure states are Must-Fix and produces the precise language for each one.
 
@@ -163,7 +180,8 @@ For `saveRequest`, the handoff condition reads: no empty catch block for `IOExce
 
 The handoff condition does not include the Important-for-v2 states. Those are deferred. They appear in the evidence section of the Boondoggle Score row as a written deferral note: "Retry logic deferred to v2. Invalid path validation deferred to startup configuration check." The deferral note is part of the evidence because it proves the states were found and classified, not simply missed.
 
-<!-- → [INFOGRAPHIC: Boondoggle Score row anatomy for a hardened component — the row expanded to show six fields: AI Task, Human Task, Handoff Condition (with the four Must-Fix clauses listed), Evidence (with pass/fail for each clause), Deferral Notes (listing Important-for-v2 states with justification), Supervisory Capacity. Caption: "The deferral notes are evidence, not omissions. They prove the states were found."] -->
+![The deferral notes are evidence, not omissions. They prove the states were found.](images/15-hardening-edge-cases-and-failure-states-fig-04.png)
+*Figure 15.4 — Boondoggle Score row anatomy for a hardened component*
 
 This is what hardening looks like as a specification discipline. It is not "add defensive code everywhere." It is "find the failure states, classify them, address the Must-Fix ones with precise prompt language, defer the rest with written justification, and encode all of it in the handoff condition so nothing can pass silently."
 
@@ -259,3 +277,45 @@ Generate a revised implementation that addresses every Must-Fix state without ad
 ```
 
 After receiving the revised implementation, audit it: does any added code address an Important-for-v2 or Nice-to-Have state instead of a Must-Fix state? Does any added code expand the method's responsibility beyond the original contract? Revise the prompt to constrain any scope creep and regenerate.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 15.1 — A contract document with a "Normal Operation" section
+
+Create a standalone D3 v7 HTML file for Figure A contract document with a "Normal Operation" section. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A contract document with a "Normal Operation" section fully written out and a "Failure Conditions" section that is blank — the heading is there, the lines are there, but nothing is written. Caption: "The failure section was never filled in.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/15-hardening-edge-cases-and-failure-states-fig-01.html`
+
+---
+
+### Figure 15.2 — A method box labeled "saveRequest()" at the center,
+
+Create a standalone D3 v7 HTML file for Figure A method box labeled "saveRequest()" at the center,. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A method box labeled "saveRequest()" at the center, with incoming arrows labeled by failure source: "caller" (null input, wrong types), "file system" (permissions, path, disk full, partial write), "concurrency" (race conditions), "timing" (timeout). Each arrow ends at the method boundary. Caption: "Failure arrives from every direction. The specification names which directions the method must handle.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/15-hardening-edge-cases-and-failure-states-fig-02.html`
+
+---
+
+### Figure 15.3 — Diff of saveRequest 
+
+Create a standalone D3 v7 HTML file for Figure Diff of saveRequest . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Annotated diff of saveRequest — left column shows the original unspecified version with the empty catch block highlighted in red; right column shows the hardened version with three added lines highlighted in green and each annotated with the Must-Fix state it addresses: "null check → Must-Fix: null input", "logger.error → Must-Fix: swallowed exception (log)", "throw e → Must-Fix: swallowed exception (propagate)". Caption: "Three clauses in the specification. Three lines in the implementation. Scope unchanged.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/15-hardening-edge-cases-and-failure-states-fig-03.html`
+
+---
+
+### Figure 15.4 — Boondoggle Score row anatomy for a hardened component
+
+Create a standalone D3 v7 HTML file for Figure Boondoggle Score row anatomy for a hardened component. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Boondoggle Score row anatomy for a hardened component — the row expanded to show six fields: AI Task, Human Task, Handoff Condition (with the four Must-Fix clauses listed), Evidence (with pass/fail for each clause), Deferral Notes (listing Important-for-v2 states with justification), Supervisory Capacity. Caption: "The deferral notes are evidence, not omissions. They prove the states were found.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/15-hardening-edge-cases-and-failure-states-fig-04.html`

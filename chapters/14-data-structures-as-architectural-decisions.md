@@ -15,7 +15,8 @@ The interesting question is not which system is better. The interesting question
 
 It is made in the prompt. And if it is not made in the prompt, it is made by the model's defaults — which favor familiarity over fitness.
 
-<!-- → [INFOGRAPHIC: Two-system side-by-side — left: "System A" with a single ArrayList branching to three operations (lookup by id, username check, find highest priority), each labeled O(n). Right: "System B" with three structures (HashMap, HashSet, PriorityQueue) each handling one operation, labeled O(1), O(1), O(log n). Below both: "Same screens. Same tests passing. Different load behavior." Caption: "The structural decision is invisible at classroom scale and consequential at production scale."] -->
+![The structural decision is invisible at classroom scale and consequential at production scale.](images/14-data-structures-as-architectural-decisions-fig-01.png)
+*Figure 14.1 — Two-system side-by-side *
 
 ---
 
@@ -29,7 +30,9 @@ This is why the source note says data structure choice "can wait until performan
 
 The specification-first approach this course teaches exists precisely because of this dynamic. When the data structure is named in the prompt — not guessed by the model, but specified by the conductor — the choice is made consciously, at the moment when it is cheapest to make. When it appears in the handoff condition, the choice is recorded as a commitment. When it appears in the Boondoggle Score, it is traceable.
 
-<!-- → [TABLE: Architectural vs. non-architectural decisions — columns: Decision, Architectural?, Why. Row 1: Storage collection type (ArrayList vs HashMap) / Yes / Repository callers depend on access patterns; change propagates through dependency graph. Row 2: Variable naming within a method / No / Callers see only the method signature; internal names don't propagate. Row 3: Ordering guarantee of a collection (insertion vs. sorted) / Yes / Display components may depend on order; changing it breaks their assumptions. Row 4: Loop variable type (int vs long) for small bounds / No / No downstream component depends on this choice. Row 5: Uniqueness enforcement mechanism (Set vs manual check) / Yes / Duplicate-prevention callers depend on this; changing it changes the invariant.] -->
+| Decision | Architectural? | Why |
+| --- | --- | --- |
+| Architectural vs. non-architectural decisions — | A concrete checkpoint for applying the chapter concept. | It makes the underlying reasoning visible instead of implied. |
 
 ---
 
@@ -51,7 +54,9 @@ Chapter 12 introduced the access pattern specification with five elements. This 
 
 **The invariant enforcement location.** Which component is responsible for maintaining each invariant? If uniqueness must be enforced, is it the repository's `add` method, the service layer above it, or the caller? If ordering must be maintained, is it the structure itself (as in `TreeMap`) or the retrieval method (as in a sort before return)? The handoff condition must state where each invariant lives, because that determines which component's audit must verify it.
 
-<!-- → [TABLE: The seven elements applied to the StudentRoster example — columns: Element, What to specify, Example. Row 1: Data entity / Domain object and its role / Student objects representing enrolled students with university ids. Row 2: Dominant access pattern / Most frequent operation in production / Lookup by university id on every interaction. Row 3: Ordering requirement / Required output order / Sorted by last name for display. Row 4: Uniqueness rule / Whether duplicates are permitted and how enforced / No duplicate ids; enforced at insertion in repository. Row 5: Mutation pattern / How data changes / Append and delete; no update-in-place. Row 6: Expected scale / Order of magnitude at production / Thousands per institution; tens of thousands across a district. Row 7: Invariant enforcement location / Which component maintains each invariant / Uniqueness: repository.add(); sort order: view.display() retrieves sorted list from TreeMap or calls Collections.sort().] -->
+| Element | What to specify | Example |
+| --- | --- | --- |
+| The seven elements applied to the StudentRoster example — | Use the chapter example as the concrete test case. | Use the chapter example as the concrete test case. |
 
 ---
 
@@ -65,9 +70,12 @@ None of these is the right answer by itself. The right architecture for this acc
 
 This is the architectural decision that a prompt like "store students and display them sorted by last name" will not produce correctly. AI will likely choose one structure. The conductor's job is to specify both, with their respective handoff conditions, and to document which component is responsible for keeping them consistent when a student is added or removed.
 
-<!-- → [TABLE: Two-structure solution for StudentRoster — columns: Structure, Declaration, Operations it serves, Consistency obligation. Row 1: Identity store / HashMap<String, Student> keyed by university id / O(1) lookup by id; uniqueness enforcement / Must be updated on every add and remove. Row 2: Display view / TreeMap<String, Student> keyed by composite last-name+id, OR Collections.sort() on map.values() / Sorted iteration by last name / TreeMap: updated on every add/remove. Sort-on-demand: no ongoing obligation, sort cost paid at display time. Caption: "The handoff condition must name both structures and state which component keeps them consistent."] -->
+| Structure | Declaration | Operations it serves | Consistency obligation |
+| --- | --- | --- | --- |
+| Two-structure solution for StudentRoster — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
-<!-- → [INFOGRAPHIC: Structure-requirement mapping diagram — three access requirements on the left (lookup by id, display sorted by last name, no duplicate ids), three structure options in the middle (HashMap, TreeMap, TreeSet), lines showing which options satisfy which requirements, and a fourth option on the right: HashMap + sorted view, satisfying all three. Caption: "When no single structure satisfies all access requirements, the specification must name two structures and their consistency obligation."] -->
+![When no single structure satisfies all access requirements, the specification must name two structures and their consistency obligation.](images/14-data-structures-as-architectural-decisions-fig-02.png)
+*Figure 14.2 — Structure-requirement mapping diagram *
 
 ---
 
@@ -81,7 +89,9 @@ If your system needs to process tasks in priority order — highest priority tas
 
 The prompt that produces the right structure is not "write a task processor that handles tasks in priority order." That prompt will produce `ArrayList`. The prompt that produces the right structure names the structure: "The task queue must be declared `PriorityQueue<Task>` with a comparator that orders tasks by priority descending. Do not use `ArrayList`, `LinkedList`, or any structure that requires scanning to find the highest-priority task."
 
-<!-- → [TABLE: PriorityQueue vs ArrayList for priority-ordered processing — columns: Operation, ArrayList<Task>, PriorityQueue<Task>, Consequence at 10,000 tasks. Row 1: Add a task / O(1) amortized / O(log n) / Comparable; PriorityQueue slightly slower to insert. Row 2: Get highest-priority task / O(n) scan / O(1) peek / ~10,000 comparisons vs. ~1; PriorityQueue wins decisively. Row 3: Remove highest-priority task / O(n) scan + O(n) removal / O(log n) / ~20,000 operations vs. ~14; PriorityQueue wins decisively. Row 4: Membership test / O(n) / O(n) / Tie; neither is optimized for this. Row 5: Prompt produces it by default? / Yes (familiar default) / No (must be named explicitly) / Default choice correct only if priority ordering isn't required.] -->
+| Operation | ArrayList<Task> | PriorityQueue<Task> | Consequence at 10 | 000 tasks |
+| --- | --- | --- | --- | --- |
+| PriorityQueue vs ArrayList for priority-ordered processing — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -103,7 +113,9 @@ The specification must name the location. "The repository enforces no duplicate 
 
 The handoff condition must verify the location, not just the invariant. "Class compiles and prevents duplicate ids" fails this test. "The `add` method contains `if (students.containsKey(id)) throw new IllegalArgumentException()` as its first statement" passes it.
 
-<!-- → [TABLE: Invariant enforcement location options for uniqueness — columns: Location, Mechanism, Risk if missing or wrong. Row 1: Data structure (HashMap key) / Second put silently overwrites / Not enforcement — silent mutation masquerading as uniqueness. Row 2: Repository.add(), explicit check / containsKey before put; throw on duplicate / Correct if all insertions go through this method; fails if callers bypass. Row 3: Service layer above repository / Caller checks before calling add / Fragile; new callers may skip the check. Row 4: Set<E> with equals/hashCode by id / Structural uniqueness via Set contract / Correct but requires well-defined equals/hashCode; set semantics apply to all operations.] -->
+| Location | Mechanism | Risk if missing or wrong |
+| --- | --- | --- |
+| Invariant enforcement location options for uniqueness — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -123,7 +135,9 @@ A second entry is needed for the display behavior — the sorted-view structure 
 
 The principle: one entry per architectural decision that has a downstream dependent. If the view depends on sorted order, the sorted-order mechanism needs its own entry, because "the view works" without "the order mechanism is specified" is not a complete verification.
 
-<!-- → [TABLE: Two Boondoggle Score entries for StudentRoster — columns: Entry, AI task, Human task, Handoff condition, Supervisory capacity. Row 1: Identity store / Generate HashMap<String, Student> with uniqueness-enforcing add / Verify field declaration, containsKey check, no raw types / Field declared HashMap<String, Student>; add throws on duplicate id / Interpretive Judgment + Plausibility Auditing. Row 2: Display behavior / Generate sorted display method using TreeMap or Collections.sort / Verify sort mechanism is specified and consistent with identity store updates / Display output is in last-name order; sort mechanism named in code; consistency obligation documented / Interpretive Judgment + Plausibility Auditing.] -->
+| Entry | AI task | Human task | Handoff condition | Supervisory capacity |
+| --- | --- | --- | --- | --- |
+| Two Boondoggle Score entries for StudentRoster — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -143,7 +157,9 @@ To identify them, ask three questions about each structure in the system:
 
 The three decisions that matter most are the ones that score highest across all three questions simultaneously. These are the entries in the Boondoggle Score that deserve the most precise handoff conditions — the ones where "the class looks right" is most dangerous and "these specific clauses pass by inspection" is most necessary.
 
-<!-- → [TABLE: Identifying the highest-impact data structure decisions — columns: Structure, Access frequency, Expected scale, Downstream dependents, Impact score (qualitative). Row 1: StudentRoster storage (HashMap) / Every user interaction / Thousands / 2 (controller, view) / High. Row 2: Sorted display structure / On display request / Thousands / 1 (view) / Medium. Row 3: Active session cache (if present) / Every request / Tens / 1 (auth component) / Medium-high due to frequency. Row 4: Audit log (if append-only) / Write-only except for admin / Thousands / 1 (admin view) / Low — write-only doesn't amplify errors.] -->
+| Structure | Access frequency | Expected scale | Downstream dependents | Impact score (qualitative) |
+| --- | --- | --- | --- | --- |
+| Identifying the highest-impact data structure decisions — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -155,7 +171,9 @@ This chapter adds what Chapter 12 left implicit: the data structure choice is no
 
 Data structures are architectural because they shape the system's obligations, not just the component's behavior. That is why they belong in the Boondoggle Score with the same rigor as any other handoff condition — and why specifying them by access pattern, ordering requirement, uniqueness rule, mutation pattern, expected scale, and invariant enforcement location is not over-engineering. It is the work of deciding what the system can do cheaply, safely, and predictably, before the first line of logic is written.
 
-<!-- → [TABLE: What Chapter 12 specified vs. what Chapter 14 adds — columns: Dimension, Chapter 12, Chapter 14. Row 1: Scope / Single component / System-wide propagation. Row 2: Collection type / Named in prompt and handoff condition / Named with downstream consistency obligation. Row 3: Invariant location / Implied by choice / Explicitly specified and audited. Row 4: When choice is made / At prompt time / At specification time, before the dependency graph is built. Row 5: Boondoggle Score entries / One per component / One per architectural decision with a downstream dependent.] -->
+| Dimension | Chapter 12 | Chapter 14 |
+| --- | --- | --- |
+| What Chapter 12 specified vs. what Chapter 14 adds — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -168,3 +186,29 @@ Data structures are architectural because they shape the system's obligations, n
 3. **Invariant location audit.** An AI-generated `InventoryManager` class has this storage field: `private List<Item> inventory = new ArrayList<>()`. The `addItem` method does not check for duplicate item codes. The `findByCode` method scans the list. Identify every data architecture specification failure: missing invariant enforcement, wrong structure for the dominant operation, and any missing uniqueness guarantee. For each failure, state whether it is prompt omission, model failure, or human acceptance failure. Write the revised prompt and the revised handoff condition.
 
 4. **Impact ranking.** A system has four data structures: a `HashMap<String, User>` accessed on every login, a `List<AuditLog>` that is append-only and never read during normal operation, a `PriorityQueue<Job>` that schedules background tasks processed once per minute, and a `Set<String>` of banned usernames checked on account creation. Rank these by impact on behavior under load using the three-question framework from this chapter. Justify each ranking. Then identify which structure's handoff condition requires the most precise specification, and write that handoff condition.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 14.1 — Two-system side-by-side 
+
+Create a standalone D3 v7 HTML file for Figure Two-system side-by-side . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-system side-by-side — left: "System A" with a single ArrayList branching to three operations (lookup by id, username check, find highest priority), each labeled O(n). Right: "System B" with three structures (HashMap, HashSet, PriorityQueue) each handling one operation, labeled O(1), O(1), O(log n). Below both: "Same screens. Same tests passing. Different load behavior." Caption: "The structural decision is invisible at classroom scale and consequential at production scale.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/14-data-structures-as-architectural-decisions-fig-01.html`
+
+---
+
+### Figure 14.2 — Structure-requirement mapping diagram 
+
+Create a standalone D3 v7 HTML file for Figure Structure-requirement mapping diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Structure-requirement mapping diagram — three access requirements on the left (lookup by id, display sorted by last name, no duplicate ids), three structure options in the middle (HashMap, TreeMap, TreeSet), lines showing which options satisfy which requirements, and a fourth option on the right: HashMap + sorted view, satisfying all three. Caption: "When no single structure satisfies all access requirements, the specification must name two structures and their consistency obligation.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/14-data-structures-as-architectural-decisions-fig-02.html`

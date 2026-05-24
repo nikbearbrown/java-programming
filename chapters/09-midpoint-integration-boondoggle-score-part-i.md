@@ -13,7 +13,9 @@ This is not a failure of effort. It is a failure of a particular cognitive task:
 
 Chapter 9 is about the first operation.
 
-<!-- → [TABLE: The three opening failures laid out — columns: Component pair, What the author assumed, What the written spec actually said, Failure type. Row 1: Method prompt + model class / Class exists with expected shape / Class not yet specified / Missing prerequisite. Row 2: View prompt + model class / Model fields are mutable / Fields declared private / Visibility violation. Row 3: Dependency graph / View built after repository / View placed before repository in graph / Dependency order wrong. Caption: "Three failures. Each invisible while the components were reviewed alone."] -->
+| Component pair | What the author assumed | What the written spec actually said | Failure type |
+| --- | --- | --- | --- |
+| Fields declared private | Visibility violation. Row 3: Dependency graph | View built after repository | View placed before repository in graph |
 
 ---
 
@@ -27,7 +29,9 @@ There is a distinction worth naming carefully before anything else, because conf
 
 This is the gap that the Boondoggle Score Part I is designed to close. Not by adding more checks to each component, but by requiring that all the specifications be read together, against each other, before the next build phase begins.
 
-<!-- → [TABLE: Part verification vs. integration verification — columns: Dimension, Part verification, Integration verification. Row 1: Question asked / Does this component satisfy its own condition? / Do the components' specifications agree with each other? Row 2: Where failures live / Inside a single component / In the gaps between components. Row 3: Can pass while the other fails? / Yes / Yes. Row 4: When it runs / After each component is generated / At the midpoint, before Phase II build. Row 5: Evidence required / Handoff condition check per component / Cross-component consistency check across all specs.] -->
+| Dimension | Part verification | Integration verification |
+| --- | --- | --- |
+| Part verification vs. integration verification — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -45,7 +49,8 @@ Neither component is wrong in isolation. Both passed their individual handoff co
 
 The fix is not to patch the controller. The fix is to ask, before either component is generated: what is the exact method signature the controller will call, and does the repository specification name that exact method? If the answer to the second question is no, you don't have a consistent system design yet. You have two components that will need to be reconciled later — and later is always more expensive than now.
 
-<!-- → [INFOGRAPHIC: Two-component mismatch diagram — left box: TaskRepository, method defined as add(Task t). Right box: TaskController, calls repository.save(task). Arrow between them labeled "NoSuchMethodError at runtime." Below both boxes: "Both passed individual handoff conditions." Caption: "Integration failures live between components whose individual specifications never talked to each other."] -->
+![Integration failures live between components whose individual specifications never talked to each other.](images/09-midpoint-integration-boondoggle-score-part-i-fig-01.png)
+*Figure 9.1 — Two-component mismatch diagram *
 
 ---
 
@@ -59,7 +64,9 @@ That is a long sentence, but each clause is binary. Either the name matches or i
 
 The Boondoggle Score Part I is a consistency check. It asks: given all the specifications you have written so far, do they form a consistent system? Not "are the components individually good?" That question was answered by the individual handoff conditions. The new question is whether the whole is coherent.
 
-<!-- → [TABLE: The three consistency conditions and how to check them — columns: Condition, What to look for, Passes when, Fails when. Row 1: Method-call consistency / Every cross-component call in each prompt / Name, parameter types, and return type match the receiving spec / Any mismatch in name or signature. Row 2: Field-access consistency / Every field referenced across component boundaries / Field exists and has the required visibility modifier / Field missing or wrong access modifier. Row 3: Type-reference ordering / Every type used in a component / That type's handoff condition appears earlier in the score / Type's handoff condition appears later or is absent.] -->
+| Condition | What to look for | Passes when | Fails when |
+| --- | --- | --- | --- |
+| The three consistency conditions and how to check them — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -77,7 +84,9 @@ The Score Part I has five elements, and they must be read together.
 
 **The handoff conditions, all of them.** Again, not in isolation. The handoff conditions should be checked for two properties: testability (each condition is binary and inspectable) and coverage (every behavior stated in the Problem Summary has at least one handoff condition that would catch its absence).
 
-<!-- → [TABLE: Score Part I elements and their cross-checks — columns: Element, Individual check, Cross-check with other elements. Row 1: Problem Summary / Could not describe a different system / Every component traces to a clause. Row 2: Architecture principles / Each is a binary constraint, not a preference / Each principle appears in every prompt it governs. Row 3: Dependency graph / Order is correct; all nodes present / Every component in every prompt appears as a node. Row 4: Prompts / Each is complete with output format, constraints, forbidden items / Method calls across prompts use consistent names and signatures. Row 5: Handoff conditions / Each is binary and inspectable / Together they cover every behavior in the Problem Summary.] -->
+| Element | Individual check | Cross-check with other elements |
+| --- | --- | --- |
+| Together they cover every behavior in the Problem Summary. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -93,7 +102,8 @@ A peer reviewer doesn't have your mental model. When the peer reads the controll
 
 This is why peer audit is a structural requirement of the Score Part I, not an optional quality improvement. The author's memory is an unverified source. The peer's fresh read is a check against the written record.
 
-<!-- → [INFOGRAPHIC: Two-path diagram — left path: Author reviews own specs, mental model fills in gaps, mismatch invisible. Right path: Peer reviews specs, no mental model, reads only what is written, mismatch visible. Caption: "Peer audit works because the reviewer's ignorance of the author's intentions is a feature, not a deficiency."] -->
+![Peer audit works because the reviewer's ignorance of the author's intentions is a feature, not a deficiency.](images/09-midpoint-integration-boondoggle-score-part-i-fig-02.png)
+*Figure 9.2 — Two-path diagram *
 
 ---
 
@@ -111,7 +121,9 @@ A peer audit against vague criteria is not an audit. It is a conversation. The S
 
 **Revision evidence.** If the score shows that any handoff condition failed, there is a revision record: what failed, whether the failure was prompt omission, model failure, or human acceptance failure, and what the revised prompt said. A score that shows no failures is a score that either has no record of failures or had no failures. The auditor cannot tell which without revision evidence. Absence of revision history is not evidence of a clean build — it is evidence of an incomplete record.
 
-<!-- → [TABLE: Peer audit rubric — five criteria, three columns: Criterion, Passes when, Fails when. Row 1: Prompt completeness / Output spec, two constraints, two forbidden items present / Any element missing or vague. Row 2: Handoff condition testability / Condition evaluable by reading artifact alone / Requires running, asking, or inferring. Row 3: Dependency ordering / Every upstream handoff precedes downstream prompt / Any downstream prompt precedes its upstream handoff. Row 4: Invariant preservation / All invariants relied on downstream are stated upstream / Any downstream dependency on an unstated upstream invariant. Row 5: Revision evidence / Failures recorded with type and revised prompt / No failures recorded, or failures with no revision.] -->
+| Criterion | Passes when | Fails when |
+| --- | --- | --- |
+| Peer audit rubric | five criteria, three | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -125,7 +137,9 @@ I want to address three things the peer audit is not, because each is a tempting
 
 **It is not a courtesy review.** A common failure mode in peer review of any kind is the courtesy pass: the reviewer reads the document, finds nothing obviously wrong, and says "looks good" because finding nothing is easier than finding something. In a course context, this failure mode is tempting because pointing out problems feels unfriendly. The structure of the Score Part I audit is designed to resist this. Each criterion is binary. The auditor is not asked "is this good?" — she is asked "does this criterion pass or fail, and what is the evidence?" The answer "passes, because I found no failures" requires evidence of looking. The answer "fails" requires naming what failed and where.
 
-<!-- → [TABLE: Three tempting substitutes for a real audit — columns: Substitute, What it catches, What it misses, Why it feels like enough. Row 1: Proofreading / Surface errors, typos, minor naming issues / Specification contradictions between components / The document looks clean. Row 2: Code quality review / Inelegant or non-idiomatic Java / Whether specs are mutually consistent / The code looks good. Row 3: Courtesy pass / Nothing — that's the point / Everything the criteria were designed to find / Pointing out problems feels unfriendly.] -->
+| Substitute | What it catches | What it misses | Why it feels like enough |
+| --- | --- | --- | --- |
+| Three tempting substitutes for a real audit — | Audience, stakes, timing, and platform conventions shape the choice. | A concrete checkpoint for applying the chapter concept. | It makes the underlying reasoning visible instead of implied. |
 
 ---
 
@@ -141,7 +155,8 @@ Then read the handoff conditions, again in dependency order. For each condition,
 
 Then read the revision records. If there are none, ask whether that is because the process was clean or because failures were not recorded. If the process was genuinely clean — every first-pass artifact satisfied every handoff condition — the revision record should say so explicitly, because absence of entries looks identical to absence of process.
 
-<!-- → [INFOGRAPHIC: Linear reading protocol — four steps in a vertical sequence. Step 1: Read Problem Summary, trace every component to a clause. Step 2: Read prompts in dependency order, mark every cross-component method call, verify against receiving component's spec. Step 3: Read handoff conditions in dependency order, check testability and invariant coverage. Step 4: Read revision records, verify failures are recorded or confirm explicitly that none occurred. Caption: "Reading the score as a system, not as a collection of parts."] -->
+![Reading the score as a system, not as a collection of parts.](images/09-midpoint-integration-boondoggle-score-part-i-fig-03.png)
+*Figure 9.3 — Linear reading protocol *
 
 ---
 
@@ -157,7 +172,9 @@ The peer audit is the mechanism that enforces those obligations, because the aut
 
 When the Score Part I passes peer audit, it means something specific: every specification in Phase I is consistent with every other specification, the dependency order is correct, every handoff condition is testable, and every failure is recorded. That is the foundation Phase II builds on. If it is solid, Phase II can generate components that integrate cleanly. If it is not solid, Phase II will generate components that look finished and fail at the same moment as the components in this chapter's opening case — when the pieces are finally placed on one table.
 
-<!-- → [TABLE: What "Score Part I passes peer audit" actually means — columns: Claim, What it requires, What it does not claim. Row 1: Specs are mutually consistent / Every cross-component reference verified against receiving spec / That the specs describe the right system. Row 2: Dependency order is correct / Every upstream handoff precedes downstream prompt / That no implicit dependencies were missed. Row 3: Handoff conditions are testable / Every condition evaluable by reading artifact alone / That every condition was checked. Row 4: Failures are recorded / Revision history present or clean-build statement explicit / That the build was clean.] -->
+| Claim | What it requires | What it does not claim |
+| --- | --- | --- |
+| Every condition evaluable by reading artifact alone | That every condition was checked. Row 4: Failures are recorded | Revision history present or clean-build statement explicit |
 
 ---
 
@@ -170,3 +187,37 @@ When the Score Part I passes peer audit, it means something specific: every spec
 3. **Score Part I self-audit.** Apply the five-criterion audit to your own Score Part I. For each criterion, write one sentence stating whether it passes or fails, and one sentence of evidence. If any criterion fails, write the revision that would bring it into compliance. If all criteria pass, write a sentence for each explaining why the evidence is sufficient rather than merely absent.
 
 4. **Revision record reconstruction.** A student's Score Part I shows no revision history. You are the peer auditor. Write the two questions you would ask to determine whether the absence of failures is genuine or unrecorded. Then write what a genuine clean-build record should say, even when nothing went wrong — the explicit statement that makes "no failures" verifiable rather than ambiguous.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 9.1 — Two-component mismatch diagram 
+
+Create a standalone D3 v7 HTML file for Figure Two-component mismatch diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-component mismatch diagram — left box: TaskRepository, method defined as add(Task t). Right box: TaskController, calls repository.save(task). Arrow between them labeled "NoSuchMethodError at runtime." Below both boxes: "Both passed individual handoff conditions." Caption: "Integration failures live between components whose individual specifications never talked to each other.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/09-midpoint-integration-boondoggle-score-part-i-fig-01.html`
+
+---
+
+### Figure 9.2 — Two-path diagram 
+
+Create a standalone D3 v7 HTML file for Figure Two-path diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-path diagram — left path: Author reviews own specs, mental model fills in gaps, mismatch invisible. Right path: Peer reviews specs, no mental model, reads only what is written, mismatch visible. Caption: "Peer audit works because the reviewer's ignorance of the author's intentions is a feature, not a deficiency.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/09-midpoint-integration-boondoggle-score-part-i-fig-02.html`
+
+---
+
+### Figure 9.3 — Linear reading protocol 
+
+Create a standalone D3 v7 HTML file for Figure Linear reading protocol . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Linear reading protocol — four steps in a vertical sequence. Step 1: Read Problem Summary, trace every component to a clause. Step 2: Read prompts in dependency order, mark every cross-component method call, verify against receiving component's spec. Step 3: Read handoff conditions in dependency order, check testability and invariant coverage. Step 4: Read revision records, verify failures are recorded or confirm explicitly that none occurred. Caption: "Reading the score as a system, not as a collection of parts.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/09-midpoint-integration-boondoggle-score-part-i-fig-03.html`

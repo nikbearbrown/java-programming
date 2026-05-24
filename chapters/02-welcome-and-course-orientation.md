@@ -15,7 +15,8 @@ The question the course is asking — the real question, the one that runs throu
 
 ## What a Conductor Actually Does
 
-<!-- → [IMAGE: A conductor mid-gesture at a podium, baton raised, orchestra visible but slightly blurred behind — emphasizing the human figure as the locus of accountability, not the players] -->
+![A conductor mid-gesture at a podium, baton raised,](images/02-welcome-and-course-orientation-fig-01.png)
+*Figure 2.1 — A conductor mid-gesture at a podium, baton raised,*
 
 I want you to think about what a conductor does during a performance. Not the waving — the *responsibility*.
 
@@ -39,7 +40,12 @@ When you give a language model a well-specified prompt — give it the class nam
 
 The problem is that *looking right* and *being right* are not the same condition, and the gap between them is where software fails.
 
-<!-- → [TABLE: Two-column table — "What compilation proves" vs. "What compilation does not prove" — rows include: syntax is valid / requirements are met; types are consistent / invariants hold; method calls resolve / edge cases are handled; the build tool is satisfied / the person who specified the behavior is satisfied] -->
+| Item | Meaning |
+| --- | --- |
+| "What compilation proves" vs. "What compilation does not prove" | rows include: syntax is valid |
+| types are consistent | invariants hold |
+| method calls resolve | edge cases are handled |
+| the build tool is satisfied | the person who specified the behavior is satisfied |
 
 A compiler checks a very specific set of things. It checks that your syntax follows the rules of the language. It checks that the types are consistent. It checks that the methods you call exist and take the arguments you are passing. It does not check whether the method does what you intended. It does not check whether the class you built satisfies the requirement you were given. It does not check whether the name you chose accurately describes the behavior. Those things are not the compiler's job. They are yours.
 
@@ -65,7 +71,8 @@ The course maps five distinct things a human engineer does when supervising AI-a
 
 **Executive Integration.** At the end of a build, all the pieces have to cohere. Not just compile together — cohere. The class names have to reflect the same conceptual model. The method behavior has to be consistent across the system. The thing has to do what it was supposed to do for the person who asked for it. Executive integration is the capacity to hold the whole in mind, the way a conductor holds the score.
 
-<!-- → [INFOGRAPHIC: Five-panel horizontal layout, one panel per supervisory capacity — label, one-sentence definition, and a small icon or glyph that represents the kind of judgment involved. Designed to be readable at a glance and memorable as a reference card.] -->
+![Five-panel horizontal layout, one panel per supervisory capacity](images/02-welcome-and-course-orientation-fig-02.png)
+*Figure 2.2 — Five-panel horizontal layout, one panel per supervisory capacity*
 
 These five capacities are what the Boondoggle Score is tracking. Each row of the score asks: which of these is the human exercising at this handoff? And the answer tells you something about whether the handoff is being taken seriously.
 
@@ -79,7 +86,9 @@ Suppose the task is to generate a `Greeting` class with a single method, `greet(
 
 Here is what one row of the Boondoggle Score looks like for that task:
 
-<!-- → [TABLE: Boondoggle Score row — columns: AI Task / Human Task / Handoff Condition / Evidence / Supervisory Capacity. Row content: AI generates Greeting class with greet(String name) method / Human inspects output for exact return format, no extra methods, no extra fields, no unsanctioned imports / Handoff passes only if: class name is Greeting, method signature matches exactly, return format matches exactly, no additional methods or fields present / Printed diff between prompt specification and generated output, with each clause checked / Plausibility Auditing] -->
+| AI Task | Human Task | Handoff Condition | Evidence | Supervisory Capacity |
+| --- | --- | --- | --- | --- |
+| Boondoggle Score row — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 The handoff condition is binary. It passes or it does not. The student does not decide that the output is "close enough" and move on. She does not patch the output silently and pretend the issue never happened. If the condition fails, she records the failure, revises the prompt, and explains — in the score — whether the problem was in the prompt, in the model's output, or in a constraint she failed to specify.
 
@@ -91,7 +100,8 @@ The point of writing the handoff condition *before* receiving the output is to m
 
 ## Why Java, and Why Like This
 
-<!-- → [IMAGE: Sheet music for a small ensemble — close crop on one part, with pencil annotations in the margin — evoking the idea of a score as a living document being interpreted, not just executed] -->
+![Sheet music for a small ensemble ](images/02-welcome-and-course-orientation-fig-03.png)
+*Figure 2.3 — Sheet music for a small ensemble *
 
 You might reasonably ask: why does a Java course care about any of this? Java is a language. A course on Java should teach the language.
 
@@ -111,7 +121,8 @@ That is the course. That is why it starts here.
 
 ## What to Carry Into the Next Chapter
 
-<!-- → [INFOGRAPHIC: A simple dependency arrow diagram — "Specification" → "Delegation" → "Audit" → "Handoff" → "Next Dependency" — with a small label under each node indicating what can go wrong at that stage: underspecification, prompt omission, plausibility failure, rationalized acceptance, propagated error] -->
+![A simple dependency arrow diagram ](images/02-welcome-and-course-orientation-fig-04.png)
+*Figure 2.4 — A simple dependency arrow diagram *
 
 Before you move to Chapter 3, you should be able to do three things.
 
@@ -190,3 +201,45 @@ Generate a Boondoggle Score for this build with one row per delegation step. Eac
 ```
 
 After receiving the generated score, audit it: are the handoff conditions actually binary? Are the supervisory capacity labels accurate? Revise any row where the answer is no.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 2.1 — A conductor mid-gesture at a podium, baton raised,
+
+Create a standalone D3 v7 HTML file for Figure A conductor mid-gesture at a podium, baton raised,. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A conductor mid-gesture at a podium, baton raised, orchestra visible but slightly blurred behind — emphasizing the human figure as the locus of accountability, not the players. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/02-welcome-and-course-orientation-fig-01.html`
+
+---
+
+### Figure 2.2 — Five-panel horizontal layout, one panel per supervisory capacity
+
+Create a standalone D3 v7 HTML file for Figure Five-panel horizontal layout, one panel per supervisory capacity. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Five-panel horizontal layout, one panel per supervisory capacity — label, one-sentence definition, and a small icon or glyph that represents the kind of judgment involved. Designed to be readable at a glance and memorable as a reference card.. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/02-welcome-and-course-orientation-fig-02.html`
+
+---
+
+### Figure 2.3 — Sheet music for a small ensemble 
+
+Create a standalone D3 v7 HTML file for Figure Sheet music for a small ensemble . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Sheet music for a small ensemble — close crop on one part, with pencil annotations in the margin — evoking the idea of a score as a living document being interpreted, not just executed. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/02-welcome-and-course-orientation-fig-03.html`
+
+---
+
+### Figure 2.4 — A simple dependency arrow diagram 
+
+Create a standalone D3 v7 HTML file for Figure A simple dependency arrow diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A simple dependency arrow diagram — "Specification" → "Delegation" → "Audit" → "Handoff" → "Next Dependency" — with a small label under each node indicating what can go wrong at that stage: underspecification, prompt omission, plausibility failure, rationalized acceptance, propagated error. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/02-welcome-and-course-orientation-fig-04.html`

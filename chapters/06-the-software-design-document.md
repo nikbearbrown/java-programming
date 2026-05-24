@@ -13,7 +13,8 @@ The description is not wrong. It is just not yet a design.
 
 This is the problem a Software Design Document solves — not by adding bureaucracy, but by forcing a decision that has to be made anyway. The SDD is where you decide what you are actually building, before you ask AI to build it. Every word you write in the SDD is a word the model won't have to guess.
 
-<!-- → [INFOGRAPHIC: A single vague prompt ("build an app for students") at the top, branching into 10 labeled boxes — calendar, Kanban board, tutoring scheduler, grade predictor, reminder app, group-project tracker, reading log, study timer, flashcard system, file organizer. Caption: "One description. Ten different systems. The SDD collapses this fan to a single path."] -->
+![One description. Ten different systems. The SDD collapses this fan to a single path.](images/06-the-software-design-document-fig-01.png)
+*Figure 6.1 — A single vague prompt ("build an app for*
 
 ---
 
@@ -29,7 +30,9 @@ Notice what the second sentence does. It names the user (single user), the domai
 
 The test I apply to a Problem Summary is brutal and simple: could a different student, reading only this sentence, produce a system that yours would refuse to work with? If yes, the summary is underspecified. If no — if the sentence constrains the design tightly enough that two people building independently would produce compatible components — you have a Problem Summary.
 
-<!-- → [TABLE: Three Problem Summary attempts for the same system — columns: Version, Text, What it leaves ambiguous. Row 1: Too vague / "Helps students manage work" / Everything: domain object, user, interaction model, fields, display. Row 2: Better / "Tracks assignments for one user, displays sorted by due date, marks complete" / Field names, interaction model, data persistence. Row 3: Sufficient / Full sentence naming user, domain object, all fields, display behavior, console interaction / Nothing load-bearing.] -->
+| Version | Text | What it leaves ambiguous |
+| --- | --- | --- |
+| Three Problem Summary attempts for the same system — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -47,7 +50,9 @@ The sort behavior exists because the summary names it. If the display doesn't so
 
 This is what I mean by specification infrastructure. The SDD doesn't slow down building. It makes every subsequent handoff condition traceable to a decision that was already made, rather than a decision you have to reconstruct after something goes wrong.
 
-<!-- → [TABLE: Traceability map for the ReadingAssignment system — columns: Problem Summary clause, Component it obligates, Handoff condition it generates. Row 1: "single user" / ReadingAssignment has no user collection or login / No multi-user fields or authentication methods present. Row 2: "title, due date, completion flag" / ReadingAssignment fields / Exactly these three fields, correct types, no extras. Row 3: "displays sorted by due date" / ReadingConsoleView sort behavior / Output order verifiable by inspection with two assignments of different dates. Row 4: "console interface" / ReadingConsoleView I/O / No GUI classes, no Swing, no JavaFX imports.] -->
+| Problem Summary clause | Component it obligates | Handoff condition it generates |
+| --- | --- | --- |
+| Traceability map for the ReadingAssignment system — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -57,7 +62,8 @@ Once the Problem Summary exists, the next task is producing a dependency graph. 
 
 The graph is not project management. It is a verification structure. It tells you which handoff conditions must pass before you can trust any downstream work. If you build downstream before the upstream handoff is verified, you are building on a foundation you don't know is solid.
 
-<!-- → [INFOGRAPHIC: A directed acyclic graph for the three-component task manager — nodes: ReadingAssignment (model), ReadingRepository (data layer), ReadingConsoleView (display). Edges: Repository depends on Model; View depends on Repository and Model. Load-bearing node labeled. Caption: "Each edge is a dependency. Each node has a handoff condition that must pass before the edge can be trusted."] -->
+![Each edge is a dependency. Each node has a handoff condition that must pass before the edge can be trusted.](images/06-the-software-design-document-fig-02.png)
+*Figure 6.2 — A directed acyclic graph for the three-component task*
 
 Let me work through a concrete example. Suppose the system has three components: a `ReadingAssignment` model class, a `ReadingRepository` that stores and retrieves assignments, and a `ReadingConsoleView` that displays and updates them.
 
@@ -79,7 +85,9 @@ Identifying load-bearing nodes is an act of interpretive judgment, not mechanica
 
 The answer is usually the nodes closest to the domain model — the classes that define what the system treats as real. In an object-oriented Java system, that means the model classes: the classes that encode the domain objects, their fields, and their invariants. These are the nodes where the specification lives, and they are therefore the nodes where specification failures are most expensive.
 
-<!-- → [TABLE: Load-bearing vs. non-load-bearing components — columns: Component, Load-bearing?, Reason, Propagation risk. Row 1: ReadingAssignment model / Yes / Defines fields used by all downstream components / Field type errors propagate to repository and view. Row 2: ReadingRepository / Partial / Depends on model; view depends on it / Data errors propagate to view but not to model. Row 3: ReadingConsoleView / No / Terminal node; nothing depends on it / Failures are local and visible.] -->
+| Component | Load-bearing? | Reason | Propagation risk |
+| --- | --- | --- | --- |
+| Load-bearing vs. non-load-bearing components — | A concrete checkpoint for applying the chapter concept. | It makes the underlying reasoning visible instead of implied. | A concrete checkpoint for applying the chapter concept. |
 
 A load-bearing node deserves a more careful handoff condition. Not a longer one — a more precise one. For the model class, the handoff condition should name every field by type, every constructor signature, and every invariant the class must maintain. "The class looks right" is not a handoff condition for a load-bearing node. "The class has fields `String title`, `LocalDate dueDate`, and `boolean completed`; a constructor that sets all three; and no setter for `title`" is.
 
@@ -97,7 +105,9 @@ The other elements that matter, and what they contribute:
 
 **Component list.** Name every component the system requires, in dependency order. For each component: the Java element it corresponds to (class, interface, method, event handler), the single sentence that states what it must do, and the handoff condition that will be used to verify it. This list becomes the skeleton of the Boondoggle Score. Every row in the score should trace to a row in the component list.
 
-<!-- → [TABLE: SDD element inventory — columns: Element, What it contributes, What breaks without it. Row 1: Problem Summary / Single-sentence test for all components / Components satisfy inferred obligations, not stated ones. Row 2: Dependency graph / Build order and propagation map / Downstream work proceeds before upstream is verified. Row 3: Architecture constraints / Prompt-level enforcement of cross-cutting rules / Each component is locally correct; system is structurally wrong. Row 4: Glossary / Shared definition of domain terms / Same word means different things in different components. Row 5: Component list / Pre-built Boondoggle Score skeleton / Handoff conditions written after the fact, post-hoc rationalization.] -->
+| Element | What it contributes | What breaks without it |
+| --- | --- | --- |
+| SDD element inventory — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -113,7 +123,8 @@ If you write a prompt without consulting the SDD, you are inventing constraints 
 
 The SDD creates what I'll call a single source of truth for the project. AI generates candidates against it. The human audits candidates against it. The Boondoggle Score records evidence against it. When something goes wrong, you trace back to it.
 
-<!-- → [INFOGRAPHIC: A hub-and-spoke diagram — SDD at center; spokes leading to: Prompt for Component A, Prompt for Component B, Boondoggle Score Row A, Boondoggle Score Row B, Handoff Condition A, Handoff Condition B. Caption: "Every prompt and every handoff condition traces to the SDD. Contradictions surface before generation, not after."] -->
+![Every prompt and every handoff condition traces to the SDD. Contradictions surface before generation, not after.](images/06-the-software-design-document-fig-03.png)
+*Figure 6.3 — A hub-and-spoke diagram *
 
 ---
 
@@ -127,7 +138,9 @@ Without the SDD, you write the model, then the repository, and at some point you
 
 This is the argument for the SDD in its simplest form. Not that it is good practice. Not that professional engineers use documents like it. The argument is that the cost of writing it is measured in minutes, and the cost of not writing it is measured in rework.
 
-<!-- → [TABLE: Cost comparison — writing SDD vs. not writing it — columns: Activity, With SDD, Without SDD. Row 1: Before generation / Write Problem Summary, dependency graph (~30 min) / Start immediately. Row 2: During generation / Each prompt draws from SDD; contradictions surface early / Constraints invented per component; contradictions surface late. Row 3: When components are integrated / Integration confirms what the SDD specified / Integration reveals what the prompts assumed differently. Row 4: When something fails / Trace failure to SDD clause / Reconstruct intended behavior from code and memory.] -->
+| Activity | With SDD | Without SDD |
+| --- | --- | --- |
+| Cost comparison | writing SDD vs. not writing it — | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -145,7 +158,9 @@ After the SDD exists, the assumptions are written down. You can read them. You c
 
 That is what I mean by specification infrastructure. Not a finished plan. A foundation that makes the plan auditable.
 
-<!-- → [TABLE: What the SDD does and does not guarantee — columns: Claim, True?, Why. Row 1: "The Problem Summary is correct" / Not guaranteed / A precise sentence can specify the wrong system; the SDD makes wrong decisions visible, not impossible. Row 2: "All dependencies are in the graph" / Not guaranteed / Implicit dependencies surface at integration; the graph captures explicit ones. Row 3: "Assumptions are consistent with each other" / Not guaranteed / But assumptions are now written down and can be checked. Row 4: "Two students reading the SDD build compatible components" / Yes, if the summary passes the uniqueness test / This is the test; passing it is the definition of a sufficient Problem Summary.] -->
+| Claim | True? | Why |
+| --- | --- | --- |
+| What the SDD does and does not guarantee — | A concrete checkpoint for applying the chapter concept. | It makes the underlying reasoning visible instead of implied. |
 
 ---
 
@@ -163,7 +178,17 @@ The entry for the SDD itself records the work of producing the document:
 
 The dependency graph entry is similar but records a different human task: verify that every downstream component's node appears after its prerequisites, and that every load-bearing node has a more precise handoff condition than its dependents.
 
-<!-- → [TABLE: Boondoggle Score entries for the SDD phase — two rows. Row 1: Problem Summary — AI task: generate draft from brief; Human task: test uniqueness and completeness; Handoff condition: all five elements present and unambiguous; Evidence: annotated summary; Supervisory capacity: Problem Formulation. Row 2: Dependency graph — AI task: generate draft graph from component list; Human task: verify order, identify load-bearing nodes, confirm precision of load-bearing handoff conditions; Handoff condition: every edge reflects a real dependency; Evidence: graph with annotations; Supervisory capacity: Executive Integration.] -->
+| Item | Meaning |
+| --- | --- |
+| Boondoggle Score entries for the SDD phase | two rows. Row 1: Problem Summary |
+| Human task: test uniqueness and completeness | A concrete checkpoint for applying the chapter concept. |
+| Handoff condition: all five elements present and unambiguous | A concrete checkpoint for applying the chapter concept. |
+| Evidence: annotated summary | A concrete checkpoint for applying the chapter concept. |
+| Supervisory capacity: Problem Formulation. Row 2: Dependency graph | AI task: generate draft graph from component list |
+| Human task: verify order, identify load-bearing nodes, confirm precision of load-bearing handoff conditions | A concrete checkpoint for applying the chapter concept. |
+| Handoff condition: every edge reflects a real dependency | Audience, stakes, timing, and platform conventions shape the choice. |
+| Evidence: graph with annotations | A concrete checkpoint for applying the chapter concept. |
+| Supervisory capacity: Executive Integration. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -177,7 +202,9 @@ Without the SDD, writing ten handoff conditions for ten components is ten separa
 
 The conductor's frame tells you how to manage a single delegation. The SDD tells you what all the delegations are for.
 
-<!-- → [TABLE: Conductor's Frame (Ch. 3) vs. SDD (Ch. 6) — columns: Dimension, Chapter 3, Chapter 6. Row 1: Scope / One component, one handoff / All components, all handoffs. Row 2: Where obligations come from / Human invents them per prompt / Human reads them from the SDD. Row 3: When contradictions surface / At audit, per component / At SDD review, before any generation. Row 4: Boondoggle Score entries / One per chapter / One per component in the dependency graph. Row 5: Failure tracing / Back to handoff condition / Back to SDD clause that the handoff condition came from.] -->
+| Dimension | Chapter 3 | Chapter 6 |
+| --- | --- | --- |
+| Conductor's Frame (Ch. 3) vs. SDD (Ch. 6) — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
 
 ---
 
@@ -190,3 +217,37 @@ The conductor's frame tells you how to manage a single delegation. The SDD tells
 3. **Load-bearing identification.** Given this dependency graph: `Config` → `DatabaseConnection` → `UserRepository` → `AuthService` → `LoginController`. Identify which node or nodes are load-bearing. For each load-bearing node, write the handoff condition you would apply — naming specific field types, method signatures, or invariants — and explain why the precision is higher than it would be for a terminal node.
 
 4. **SDD-to-prompt tracing.** Take the Problem Summary you wrote in Exercise 1 and write a conductor-style prompt for one of its components. Then annotate the prompt: for each constraint in the prompt, mark which clause in the Problem Summary obligates that constraint. Any prompt constraint you can't trace back is either a constraint the SDD is missing, or a constraint that doesn't belong in the prompt.
+
+## Prompts
+
+Use these prompts with Claude to generate interactive D3 v7 versions of the
+figures in this chapter. Each produces a standalone HTML file you can open
+in a browser and modify freely.
+
+**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
+your Claude project context before using these prompts. They define the stack,
+naming conventions, color system, and typography the figures use.
+
+---
+
+### Figure 6.1 — A single vague prompt ("build an app for
+
+Create a standalone D3 v7 HTML file for Figure A single vague prompt ("build an app for. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A single vague prompt ("build an app for students") at the top, branching into 10 labeled boxes — calendar, Kanban board, tutoring scheduler, grade predictor, reminder app, group-project tracker, reading log, study timer, flashcard system, file organizer. Caption: "One description. Ten different systems. The SDD collapses this fan to a single path.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/06-the-software-design-document-fig-01.html`
+
+---
+
+### Figure 6.2 — A directed acyclic graph for the three-component task
+
+Create a standalone D3 v7 HTML file for Figure A directed acyclic graph for the three-component task. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A directed acyclic graph for the three-component task manager — nodes: ReadingAssignment (model), ReadingRepository (data layer), ReadingConsoleView (display). Edges: Repository depends on Model; View depends on Repository and Model. Load-bearing node labeled. Caption: "Each edge is a dependency. Each node has a handoff condition that must pass before the edge can be trusted.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/06-the-software-design-document-fig-02.html`
+
+---
+
+### Figure 6.3 — A hub-and-spoke diagram 
+
+Create a standalone D3 v7 HTML file for Figure A hub-and-spoke diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A hub-and-spoke diagram — SDD at center; spokes leading to: Prompt for Component A, Prompt for Component B, Boondoggle Score Row A, Boondoggle Score Row B, Handoff Condition A, Handoff Condition B. Caption: "Every prompt and every handoff condition traces to the SDD. Contradictions surface before generation, not after.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
+
+> Reference implementation: `d3/06-the-software-design-document-fig-03.html`

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dependency and verification flow for The Conductor's Frame,</title>
+  <title>A simple two-column diagram </title>
   <style>
     :root {
       --color-white: #FFFFFF;
@@ -46,8 +46,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
   <script>
     const barData = [{"label":"A","value":72},{"label":"B","value":55},{"label":"C","value":44},{"label":"D","value":31},{"label":"E","value":18}];
-    const chartTitle = "Dependency and verification flow for The Conductor's Frame,";
-    const chartDesc = "Dependency and verification flow for The Conductor's Frame, showing the learner's specification, AI generation, human audit, handoff condition, and next component.";
+    const chartTitle = "A simple two-column diagram ";
+    const chartDesc = "A simple two-column diagram — left column labeled \"AI's job\" with bullets: generate code, fill syntax, produce structure; right column labeled \"Yours\" with bullets: define obligations, write handoff conditions, audit output. Clean, no decor";
     const tooltip = d3.select('body').append('div').attr('class', 'tooltip');
     function draw() {
       d3.select('#chart').selectAll('*').remove();

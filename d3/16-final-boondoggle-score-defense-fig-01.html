@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dependency and verification flow for Final Boondoggle Score:</title>
+  <title>Two-column comparison </title>
   <style>
     :root {
       --color-white: #FFFFFF;
@@ -46,8 +46,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
   <script>
     const barData = [{"label":"A","value":72},{"label":"B","value":55},{"label":"C","value":44},{"label":"D","value":31},{"label":"E","value":18}];
-    const chartTitle = "Dependency and verification flow for Final Boondoggle Score:";
-    const chartDesc = "Dependency and verification flow for Final Boondoggle Score: Defense, showing the learner's specification, AI generation, human audit, handoff condition, and next component.";
+    const chartTitle = "Two-column comparison ";
+    const chartDesc = "Two-column comparison — left column labeled \"Weak defense\" with three bullets: \"I used a HashMap,\" \"A list would have been slower,\" \"The tests pass.\" Right column labeled \"Strong defense\" with three bullets: \"HashMap<String, Task> keyed by ";
     const tooltip = d3.select('body').append('div').attr('class', 'tooltip');
     function draw() {
       d3.select('#chart').selectAll('*').remove();

@@ -187,37 +187,3 @@ When the Score Part I passes peer audit, it means something specific: every spec
 3. **Score Part I self-audit.** Apply the five-criterion audit to your own Score Part I. For each criterion, write one sentence stating whether it passes or fails, and one sentence of evidence. If any criterion fails, write the revision that would bring it into compliance. If all criteria pass, write a sentence for each explaining why the evidence is sufficient rather than merely absent.
 
 4. **Revision record reconstruction.** A student's Score Part I shows no revision history. You are the peer auditor. Write the two questions you would ask to determine whether the absence of failures is genuine or unrecorded. Then write what a genuine clean-build record should say, even when nothing went wrong — the explicit statement that makes "no failures" verifiable rather than ambiguous.
-
-## Prompts
-
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
-
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
-
----
-
-### Figure 9.1 — Two-component mismatch diagram 
-
-Create a standalone D3 v7 HTML file for Figure Two-component mismatch diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-component mismatch diagram — left box: TaskRepository, method defined as add(Task t). Right box: TaskController, calls repository.save(task). Arrow between them labeled "NoSuchMethodError at runtime." Below both boxes: "Both passed individual handoff conditions." Caption: "Integration failures live between components whose individual specifications never talked to each other.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/09-midpoint-integration-boondoggle-score-part-i-fig-01.html`
-
----
-
-### Figure 9.2 — Two-path diagram 
-
-Create a standalone D3 v7 HTML file for Figure Two-path diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-path diagram — left path: Author reviews own specs, mental model fills in gaps, mismatch invisible. Right path: Peer reviews specs, no mental model, reads only what is written, mismatch visible. Caption: "Peer audit works because the reviewer's ignorance of the author's intentions is a feature, not a deficiency.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/09-midpoint-integration-boondoggle-score-part-i-fig-02.html`
-
----
-
-### Figure 9.3 — Linear reading protocol 
-
-Create a standalone D3 v7 HTML file for Figure Linear reading protocol . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Linear reading protocol — four steps in a vertical sequence. Step 1: Read Problem Summary, trace every component to a clause. Step 2: Read prompts in dependency order, mark every cross-component method call, verify against receiving component's spec. Step 3: Read handoff conditions in dependency order, check testability and invariant coverage. Step 4: Read revision records, verify failures are recorded or confirm explicitly that none occurred. Caption: "Reading the score as a system, not as a collection of parts.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/09-midpoint-integration-boondoggle-score-part-i-fig-03.html`

@@ -163,37 +163,3 @@ I want you to remember that limit. The temptation, once you learn to write speci
 | specified type | substituted type | differences that matter | downstream consequences to check |
 | --- | --- | --- | --- |
 | Common type substitutions AI makes without permission — | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. | A concrete checkpoint for applying the chapter concept. |
-
-## Prompts
-
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
-
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
-
----
-
-### Figure 4.1 — The trap 
-
-Create a standalone D3 v7 HTML file for Figure The trap . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: The trap — two-column split showing what the student saw (correct output on sample input, checkmark) vs. what was actually in the generated method (divide-by-zero on empty array, wrong rounding, wrong parameter type); the visual should make the gap between visible output and hidden violations legible at a glance. Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/04-java-foundations-for-specification-fig-01.html`
-
----
-
-### Figure 4.2 — Before/after state diagram 
-
-Create a standalone D3 v7 HTML file for Figure Before/after state diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Before/after state diagram — array contents before method call vs. after, showing invariant preservation (contents unchanged) vs. invariant violation (sorted as side effect). Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/04-java-foundations-for-specification-fig-02.html`
-
----
-
-### Figure 4.3 — Five-step audit sequence as a decision tree 
-
-Create a standalone D3 v7 HTML file for Figure Five-step audit sequence as a decision tree . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Five-step audit sequence as a decision tree — each step has a pass branch (continue to next) and a fail branch (revise prompt, record failure, regenerate). Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/04-java-foundations-for-specification-fig-03.html`

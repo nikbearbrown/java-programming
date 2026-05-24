@@ -217,37 +217,3 @@ The conductor's frame tells you how to manage a single delegation. The SDD tells
 3. **Load-bearing identification.** Given this dependency graph: `Config` → `DatabaseConnection` → `UserRepository` → `AuthService` → `LoginController`. Identify which node or nodes are load-bearing. For each load-bearing node, write the handoff condition you would apply — naming specific field types, method signatures, or invariants — and explain why the precision is higher than it would be for a terminal node.
 
 4. **SDD-to-prompt tracing.** Take the Problem Summary you wrote in Exercise 1 and write a conductor-style prompt for one of its components. Then annotate the prompt: for each constraint in the prompt, mark which clause in the Problem Summary obligates that constraint. Any prompt constraint you can't trace back is either a constraint the SDD is missing, or a constraint that doesn't belong in the prompt.
-
-## Prompts
-
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
-
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
-
----
-
-### Figure 6.1 — A single vague prompt ("build an app for
-
-Create a standalone D3 v7 HTML file for Figure A single vague prompt ("build an app for. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A single vague prompt ("build an app for students") at the top, branching into 10 labeled boxes — calendar, Kanban board, tutoring scheduler, grade predictor, reminder app, group-project tracker, reading log, study timer, flashcard system, file organizer. Caption: "One description. Ten different systems. The SDD collapses this fan to a single path.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/06-the-software-design-document-fig-01.html`
-
----
-
-### Figure 6.2 — A directed acyclic graph for the three-component task
-
-Create a standalone D3 v7 HTML file for Figure A directed acyclic graph for the three-component task. Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A directed acyclic graph for the three-component task manager — nodes: ReadingAssignment (model), ReadingRepository (data layer), ReadingConsoleView (display). Edges: Repository depends on Model; View depends on Repository and Model. Load-bearing node labeled. Caption: "Each edge is a dependency. Each node has a handoff condition that must pass before the edge can be trusted.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/06-the-software-design-document-fig-02.html`
-
----
-
-### Figure 6.3 — A hub-and-spoke diagram 
-
-Create a standalone D3 v7 HTML file for Figure A hub-and-spoke diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: A hub-and-spoke diagram — SDD at center; spokes leading to: Prompt for Component A, Prompt for Component B, Boondoggle Score Row A, Boondoggle Score Row B, Handoff Condition A, Handoff Condition B. Caption: "Every prompt and every handoff condition traces to the SDD. Contradictions surface before generation, not after.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/06-the-software-design-document-fig-03.html`

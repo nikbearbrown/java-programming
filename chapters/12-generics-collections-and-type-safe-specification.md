@@ -187,21 +187,3 @@ Every clause is binary. Every clause is inspectable by reading the code. Every c
 3. **Wildcard diagnosis.** AI generates a method signature `public void processItems(List<?> items)` for a method that is supposed to call `item.getPriority()` on each element, where `getPriority()` is defined in the `Task` interface. Explain why this method signature is wrong in terms of what the wildcard prevents. Write the corrected signature with the appropriate bound, and write the handoff condition that would verify the corrected version.
 
 4. **Collection substitution defense.** Your `EventLog` repository stores log entries in insertion order and the dominant operation is appending a new entry at the end. AI generates `LinkedList<LogEntry>`. You recall that `ArrayList<LogEntry>` is usually faster for appending due to memory layout, even though both are O(1) amortized. Write the Boondoggle Score entry for this decision: AI task, human task, handoff condition, evidence, and supervisory capacity. Your evidence must name the access pattern, the scale assumption, and the reason you either accept `LinkedList` or revise the prompt to require `ArrayList`.
-
-## Prompts
-
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
-
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
-
----
-
-### Figure 12.1 — Timeline diagram 
-
-Create a standalone D3 v7 HTML file for Figure Timeline diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Timeline diagram — compile time on the left, runtime on the right. At compile time: ArrayList<Task> enforced by compiler, generic type information present. At runtime: type parameter erased, only ArrayList visible to JVM. Between them: unchecked cast warning marks the boundary where compile-time guarantees end. Caption: "Type erasure is why an unchecked cast warning is evidence of a guarantee gap, not just a style note.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/12-generics-collections-and-type-safe-specification-fig-01.html`

@@ -186,29 +186,3 @@ Data structures are architectural because they shape the system's obligations, n
 3. **Invariant location audit.** An AI-generated `InventoryManager` class has this storage field: `private List<Item> inventory = new ArrayList<>()`. The `addItem` method does not check for duplicate item codes. The `findByCode` method scans the list. Identify every data architecture specification failure: missing invariant enforcement, wrong structure for the dominant operation, and any missing uniqueness guarantee. For each failure, state whether it is prompt omission, model failure, or human acceptance failure. Write the revised prompt and the revised handoff condition.
 
 4. **Impact ranking.** A system has four data structures: a `HashMap<String, User>` accessed on every login, a `List<AuditLog>` that is append-only and never read during normal operation, a `PriorityQueue<Job>` that schedules background tasks processed once per minute, and a `Set<String>` of banned usernames checked on account creation. Rank these by impact on behavior under load using the three-question framework from this chapter. Justify each ranking. Then identify which structure's handoff condition requires the most precise specification, and write that handoff condition.
-
-## Prompts
-
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
-
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
-
----
-
-### Figure 14.1 — Two-system side-by-side 
-
-Create a standalone D3 v7 HTML file for Figure Two-system side-by-side . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-system side-by-side — left: "System A" with a single ArrayList branching to three operations (lookup by id, username check, find highest priority), each labeled O(n). Right: "System B" with three structures (HashMap, HashSet, PriorityQueue) each handling one operation, labeled O(1), O(1), O(log n). Below both: "Same screens. Same tests passing. Different load behavior." Caption: "The structural decision is invisible at classroom scale and consequential at production scale.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/14-data-structures-as-architectural-decisions-fig-01.html`
-
----
-
-### Figure 14.2 — Structure-requirement mapping diagram 
-
-Create a standalone D3 v7 HTML file for Figure Structure-requirement mapping diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Structure-requirement mapping diagram — three access requirements on the left (lookup by id, display sorted by last name, no duplicate ids), three structure options in the middle (HashMap, TreeMap, TreeSet), lines showing which options satisfy which requirements, and a fourth option on the right: HashMap + sorted view, satisfying all three. Caption: "When no single structure satisfies all access requirements, the specification must name two structures and their consistency obligation.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/14-data-structures-as-architectural-decisions-fig-02.html`

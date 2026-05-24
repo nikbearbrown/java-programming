@@ -156,29 +156,3 @@ That is the claim the defense makes. The score is the evidence.
 3. **Completeness audit.** Apply the four-part completeness checklist to your own final score. For each criterion, write one sentence stating whether it passes or fails, and one sentence of evidence. If any criterion fails, write the revision. If all criteria pass, write the explicit clean-build statement that makes "no failures" verifiable rather than ambiguous.
 
 4. **Changed-decision defense.** Identify one decision in your project that changed during the course — a prompt revision, a structure substitution, a handoff condition that was tightened after a failure. Write the full five-part changed-decision defense: original decision, evidence that exposed the weakness, how the specification changed, revised handoff condition, and failure mode the change prevented. If no decision changed, identify the decision most likely to have needed change had the system been deployed at production scale, and write the hypothetical defense.
-
-## Prompts
-
-Use these prompts with Claude to generate interactive D3 v7 versions of the
-figures in this chapter. Each produces a standalone HTML file you can open
-in a browser and modify freely.
-
-**Prerequisites:** Load `brutalist/CLAUDE.md` and `brutalist/DESIGN.md` into
-your Claude project context before using these prompts. They define the stack,
-naming conventions, color system, and typography the figures use.
-
----
-
-### Figure 16.1 — Two-column comparison 
-
-Create a standalone D3 v7 HTML file for Figure Two-column comparison . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Two-column comparison — left column labeled "Weak defense" with three bullets: "I used a HashMap," "A list would have been slower," "The tests pass." Right column labeled "Strong defense" with three bullets: "HashMap<String, Task> keyed by id in TaskRepository.tasks, not ArrayList<Task> with linear scan," "At 100k tasks O(n) findById scans 50k elements per call; violates responsiveness invariant; invisible in classroom testing," "Score entry for TaskRepository: handoff condition line 3 verified by inspection." Caption: "Precision at every level — decision, failure mode, evidence location — is what distinguishes a defense from a summary.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md 
-
-> Reference implementation: `d3/16-final-boondoggle-score-defense-fig-01.html`
-
----
-
-### Figure 16.2 — Cascade failure propagation diagram 
-
-Create a standalone D3 v7 HTML file for Figure Cascade failure propagation diagram . Use the CDN https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js, inline CSS, ResizeObserver redraw, SVG role="img", aria-labelledby, title, and desc. Build the figure from this structural brief: Cascade failure propagation diagram — top node: Task model, with incorrect field int priority instead of Priority. Arrows pointing to three nodes: TaskRepository (stores Task; priority field accessed in comparator), TaskController (reads priority for display logic), TaskConsoleView (formats priority for output). Each downstream node labeled "needs rebuild." Caption: "A silent failure at the domain model handoff propagates to every component that touches the field. The cascade is invisible until integration.". Use the described data shape and labels; when exact values are not supplied, use plausible illustrative values that preserve the relationships in the brief. Use a zero baseline for bars or areas, direct labels where possible, and annotations named in the brief. Use only DESIGN.md color variables and the required serif/mono font split.
-
-> Reference implementation: `d3/16-final-boondoggle-score-defense-fig-02.html`
